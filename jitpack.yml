@@ -6,5 +6,10 @@ jdk:
 # Only build and publish the core library module (cs2gsi). This skips the
 # example (fat-jar) and viewer (JavaFX) modules, which are not meant to be
 # consumed as dependencies and would slow down / risk the JitPack build.
+#
+# Use the Maven wrapper (./mvnw) so the build runs on a modern Maven (3.9.9).
+# JitPack's system Maven is too old (~3.2.5) for the plugin versions this
+# project pins (surefire 3.5.3, javadoc 3.11.2, checkstyle 3.6.0 all require
+# Maven >= 3.6.3).
 install:
-  - mvn install -DskipTests -B -pl lib -am
+  - ./mvnw install -DskipTests -B -pl lib -am
