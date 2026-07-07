@@ -1,3 +1,5 @@
+[![](https://jitpack.io/v/bustolio/CS2-GSI.svg)](https://jitpack.io/#bustolio/CS2-GSI)
+
 # Counter-Strike 2 GSI
 
 A Java library to interface with the **Game State Integration (GSI)** found in Counter-Strike 2.
@@ -57,7 +59,45 @@ mvn clean install
 
 ## Usage
 
-Add the library as a dependency (after building/installing it locally):
+### Via JitPack (recommended)
+
+The library is published through [JitPack](https://jitpack.io). Add the JitPack
+repository and the `cs2gsi` dependency to your `pom.xml`:
+
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
+<dependency>
+    <groupId>com.github.bustolio.CS2-GSI</groupId>
+    <artifactId>cs2gsi</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+> Because this is a multi-module project, the JitPack group id is
+> `com.github.bustolio.CS2-GSI` (repository) and the artifact id is `cs2gsi` (module).
+> The version is the released Git tag.
+
+For Gradle:
+
+```groovy
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation 'com.github.bustolio.CS2-GSI:cs2gsi:1.0.0'
+}
+```
+
+### Via a local build
+
+Alternatively, build and install the library into your local Maven repository and depend on it directly:
 
 ```xml
 <dependency>
