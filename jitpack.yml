@@ -1,0 +1,10 @@
+# JitPack build configuration — https://jitpack.io/docs/BUILDING/
+# Build with JDK 17 (the project targets maven.compiler.release=17).
+jdk:
+  - openjdk17
+
+# Only build and publish the core library module (cs2gsi). This skips the
+# example (fat-jar) and viewer (JavaFX) modules, which are not meant to be
+# consumed as dependencies and would slow down / risk the JitPack build.
+install:
+  - mvn install -DskipTests -B -pl lib -am
