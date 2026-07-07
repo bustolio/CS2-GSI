@@ -1,10 +1,10 @@
 package com.cs2gsi;
 
 import com.cs2gsi.events.CS2GameEvent;
-import com.cs2gsi.events.KillFeed;
-import com.cs2gsi.events.PlayerDied;
-import com.cs2gsi.events.PlayerGotKill;
-import com.cs2gsi.events.RoundChanged;
+import com.cs2gsi.events.player.KillFeed;
+import com.cs2gsi.events.player.PlayerDied;
+import com.cs2gsi.events.player.PlayerGotKill;
+import com.cs2gsi.events.round.RoundChanged;
 import com.cs2gsi.nodes.Player;
 import com.cs2gsi.nodes.Weapon;
 

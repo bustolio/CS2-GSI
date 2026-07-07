@@ -1,4 +1,6 @@
-package com.cs2gsi.events;
+package com.cs2gsi.events.player;
+
+import com.cs2gsi.events.ValueEvent;
 
 import com.cs2gsi.nodes.*;
 

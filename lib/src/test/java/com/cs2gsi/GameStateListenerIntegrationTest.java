@@ -1,7 +1,7 @@
 package com.cs2gsi;
 
-import com.cs2gsi.events.RoundPhaseUpdated;
-import com.cs2gsi.events.RoundStarted;
+import com.cs2gsi.events.round.RoundPhaseUpdated;
+import com.cs2gsi.events.round.RoundStarted;
 import com.cs2gsi.nodes.Phase;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.Test;

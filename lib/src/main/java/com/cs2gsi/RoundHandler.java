@@ -1,12 +1,12 @@
 package com.cs2gsi;
 
-import com.cs2gsi.events.BombStateUpdated;
+import com.cs2gsi.events.bomb.BombStateUpdated;
 import com.cs2gsi.events.CS2GameEvent;
-import com.cs2gsi.events.MapUpdated;
-import com.cs2gsi.events.RoundPhaseUpdated;
-import com.cs2gsi.events.RoundUpdated;
-import com.cs2gsi.events.TeamRoundLoss;
-import com.cs2gsi.events.TeamRoundVictory;
+import com.cs2gsi.events.map.MapUpdated;
+import com.cs2gsi.events.round.RoundPhaseUpdated;
+import com.cs2gsi.events.round.RoundUpdated;
+import com.cs2gsi.events.team.TeamRoundLoss;
+import com.cs2gsi.events.team.TeamRoundVictory;
 import com.cs2gsi.nodes.Map;
 import com.cs2gsi.nodes.PlayerTeam;
 

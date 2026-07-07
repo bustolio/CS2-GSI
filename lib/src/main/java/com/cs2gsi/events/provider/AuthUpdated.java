@@ -1,4 +1,6 @@
-package com.cs2gsi.events;
+package com.cs2gsi.events.provider;
+
+import com.cs2gsi.events.UpdateEvent;
 
 import com.cs2gsi.nodes.*;
 

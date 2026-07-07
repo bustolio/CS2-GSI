@@ -1,4 +1,6 @@
-package com.cs2gsi.events;
+package com.cs2gsi.events.round;
+
+import com.cs2gsi.events.CS2GameEvent;
 
 /**
  * Event for round starting.

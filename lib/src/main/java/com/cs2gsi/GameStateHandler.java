@@ -1,15 +1,15 @@
 package com.cs2gsi;
 
-import com.cs2gsi.events.AllGrenadesUpdated;
-import com.cs2gsi.events.AllPlayersUpdated;
-import com.cs2gsi.events.AuthUpdated;
-import com.cs2gsi.events.BombUpdated;
+import com.cs2gsi.events.grenade.AllGrenadesUpdated;
+import com.cs2gsi.events.player.AllPlayersUpdated;
+import com.cs2gsi.events.provider.AuthUpdated;
+import com.cs2gsi.events.bomb.BombUpdated;
 import com.cs2gsi.events.CS2GameEvent;
-import com.cs2gsi.events.MapUpdated;
-import com.cs2gsi.events.PhaseCountdownsUpdated;
-import com.cs2gsi.events.PlayerUpdated;
-import com.cs2gsi.events.ProviderUpdated;
-import com.cs2gsi.events.RoundUpdated;
+import com.cs2gsi.events.map.MapUpdated;
+import com.cs2gsi.events.round.PhaseCountdownsUpdated;
+import com.cs2gsi.events.player.PlayerUpdated;
+import com.cs2gsi.events.provider.ProviderUpdated;
+import com.cs2gsi.events.round.RoundUpdated;
 
 /**
  * Compares consecutive game states and broadcasts section update events.

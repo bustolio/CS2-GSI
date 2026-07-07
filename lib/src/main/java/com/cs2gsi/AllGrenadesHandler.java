@@ -1,15 +1,15 @@
 package com.cs2gsi;
 
-import com.cs2gsi.events.AllGrenadesUpdated;
+import com.cs2gsi.events.grenade.AllGrenadesUpdated;
 import com.cs2gsi.events.CS2GameEvent;
-import com.cs2gsi.events.ExpiredGrenade;
-import com.cs2gsi.events.GrenadeEffectTimeChanged;
-import com.cs2gsi.events.GrenadeFlamesChanged;
-import com.cs2gsi.events.GrenadeLifetimeChanged;
-import com.cs2gsi.events.GrenadePositionChanged;
-import com.cs2gsi.events.GrenadeUpdated;
-import com.cs2gsi.events.GrenadeVelocityChanged;
-import com.cs2gsi.events.NewGrenade;
+import com.cs2gsi.events.grenade.ExpiredGrenade;
+import com.cs2gsi.events.grenade.GrenadeEffectTimeChanged;
+import com.cs2gsi.events.grenade.GrenadeFlamesChanged;
+import com.cs2gsi.events.grenade.GrenadeLifetimeChanged;
+import com.cs2gsi.events.grenade.GrenadePositionChanged;
+import com.cs2gsi.events.grenade.GrenadeUpdated;
+import com.cs2gsi.events.grenade.GrenadeVelocityChanged;
+import com.cs2gsi.events.grenade.NewGrenade;
 import com.cs2gsi.nodes.Grenade;
 
 class AllGrenadesHandler extends EventHandler<CS2GameEvent> {

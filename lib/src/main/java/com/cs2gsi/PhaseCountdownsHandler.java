@@ -1,9 +1,9 @@
 package com.cs2gsi;
 
 import com.cs2gsi.events.CS2GameEvent;
-import com.cs2gsi.events.PhaseCountdownsUpdated;
-import com.cs2gsi.events.PhaseEndTimeChanged;
-import com.cs2gsi.events.RoundPhaseUpdated;
+import com.cs2gsi.events.round.PhaseCountdownsUpdated;
+import com.cs2gsi.events.round.PhaseEndTimeChanged;
+import com.cs2gsi.events.round.RoundPhaseUpdated;
 
 class PhaseCountdownsHandler extends EventHandler<CS2GameEvent> {
     PhaseCountdownsHandler(EventDispatcher<CS2GameEvent> dispatcher) {

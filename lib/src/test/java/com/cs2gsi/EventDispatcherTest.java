@@ -1,9 +1,9 @@
 package com.cs2gsi;
 
 import com.cs2gsi.events.CS2GameEvent;
-import com.cs2gsi.events.Gameover;
-import com.cs2gsi.events.RoundStarted;
-import com.cs2gsi.events.WarmupStarted;
+import com.cs2gsi.events.map.Gameover;
+import com.cs2gsi.events.round.RoundStarted;
+import com.cs2gsi.events.map.WarmupStarted;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -25,6 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Adopted semantic versioning (`1.0` → `1.0.0`).
+- Grouped the concrete event classes into thematic subpackages
+  (`events.player`, `events.bomb`, `events.grenade`, `events.map`,
+  `events.round`, `events.team`, `events.provider`); the abstract event bases
+  remain in `com.cs2gsi.events`. Import paths of concrete events change
+  accordingly.
 - Reduced the public API surface of `lib`: internal event-dispatch and diff-handler
   classes (`EventDispatcher`, `EventHandler`, `GameStateHandler`, and the per-section
   `*Handler` classes) are now package-private.

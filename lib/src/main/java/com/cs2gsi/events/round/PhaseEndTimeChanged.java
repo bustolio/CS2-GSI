@@ -1,4 +1,6 @@
-package com.cs2gsi.events;
+package com.cs2gsi.events.round;
+
+import com.cs2gsi.events.UpdateEvent;
 
 /**
  * Event for the phase end time countdown change.

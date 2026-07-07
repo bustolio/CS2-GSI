@@ -1,18 +1,18 @@
 package com.cs2gsi;
 
-import com.cs2gsi.events.BombDefused;
-import com.cs2gsi.events.BombDefusing;
-import com.cs2gsi.events.BombDropped;
-import com.cs2gsi.events.BombExploded;
-import com.cs2gsi.events.BombPickedup;
-import com.cs2gsi.events.BombPlanted;
-import com.cs2gsi.events.BombPlanting;
-import com.cs2gsi.events.BombPlayerChanged;
-import com.cs2gsi.events.BombPositionChanged;
-import com.cs2gsi.events.BombStateUpdated;
-import com.cs2gsi.events.BombUpdated;
+import com.cs2gsi.events.bomb.BombDefused;
+import com.cs2gsi.events.bomb.BombDefusing;
+import com.cs2gsi.events.bomb.BombDropped;
+import com.cs2gsi.events.bomb.BombExploded;
+import com.cs2gsi.events.bomb.BombPickedup;
+import com.cs2gsi.events.bomb.BombPlanted;
+import com.cs2gsi.events.bomb.BombPlanting;
+import com.cs2gsi.events.bomb.BombPlayerChanged;
+import com.cs2gsi.events.bomb.BombPositionChanged;
+import com.cs2gsi.events.bomb.BombStateUpdated;
+import com.cs2gsi.events.bomb.BombUpdated;
 import com.cs2gsi.events.CS2GameEvent;
-import com.cs2gsi.events.PlayerUpdated;
+import com.cs2gsi.events.player.PlayerUpdated;
 import com.cs2gsi.nodes.Player;
 
 import java.util.HashMap;

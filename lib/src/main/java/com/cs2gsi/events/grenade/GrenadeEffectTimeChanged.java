@@ -1,4 +1,6 @@
-package com.cs2gsi.events;
+package com.cs2gsi.events.grenade;
+
+import com.cs2gsi.events.EntityUpdateEvent;
 
 /**
  * Event for a specific grenade's effect time change.

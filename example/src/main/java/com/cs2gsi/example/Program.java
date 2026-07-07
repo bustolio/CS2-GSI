@@ -2,17 +2,17 @@ package com.cs2gsi.example;
 
 import com.cs2gsi.GameState;
 import com.cs2gsi.GameStateListener;
-import com.cs2gsi.events.BombStateUpdated;
+import com.cs2gsi.events.bomb.BombStateUpdated;
 import com.cs2gsi.events.CS2GameEvent;
-import com.cs2gsi.events.KillFeed;
-import com.cs2gsi.events.PlayerActiveWeaponChanged;
-import com.cs2gsi.events.PlayerDied;
-import com.cs2gsi.events.PlayerGotKill;
-import com.cs2gsi.events.PlayerTookDamage;
-import com.cs2gsi.events.PlayerWeaponsDropped;
-import com.cs2gsi.events.PlayerWeaponsPickedUp;
-import com.cs2gsi.events.RoundConcluded;
-import com.cs2gsi.events.RoundStarted;
+import com.cs2gsi.events.player.KillFeed;
+import com.cs2gsi.events.player.PlayerActiveWeaponChanged;
+import com.cs2gsi.events.player.PlayerDied;
+import com.cs2gsi.events.player.PlayerGotKill;
+import com.cs2gsi.events.player.PlayerTookDamage;
+import com.cs2gsi.events.player.PlayerWeaponsDropped;
+import com.cs2gsi.events.player.PlayerWeaponsPickedUp;
+import com.cs2gsi.events.round.RoundConcluded;
+import com.cs2gsi.events.round.RoundStarted;
 import com.cs2gsi.nodes.Weapon;
 
 import java.io.IOException;

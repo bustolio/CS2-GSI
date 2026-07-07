@@ -1,4 +1,6 @@
-package com.cs2gsi.events;
+package com.cs2gsi.events.team;
+
+import com.cs2gsi.events.TeamValueEvent;
 
 import com.cs2gsi.nodes.*;
 

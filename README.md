@@ -32,6 +32,21 @@ This is a multi-module Maven project:
 | `example` | `cs2gsi-example` | A runnable console program demonstrating common event subscriptions. |
 | `viewer`  | `cs2gsi-viewer`  | A JavaFX UI for live-viewing selected GSI events.                    |
 
+### Package overview (`lib`)
+
+```
+com.cs2gsi                 GameStateListener (entry point), GameState, CS2GSIFile
+com.cs2gsi.events          Abstract event bases (CS2GameEvent, UpdateEvent, ...)
+com.cs2gsi.events.player   Player state, weapons, kills, deaths, kill feed
+com.cs2gsi.events.bomb     Bomb possession, planting, defusal, detonation
+com.cs2gsi.events.grenade  Grenade lifecycle and trajectory
+com.cs2gsi.events.map      Level, game mode, and match phase transitions
+com.cs2gsi.events.round    Round lifecycle and phase countdowns
+com.cs2gsi.events.team     Team scores, statistics, and round outcomes
+com.cs2gsi.events.provider GSI provider and authentication updates
+com.cs2gsi.nodes           Typed data model for the GSI JSON (Player, Round, ...)
+```
+
 ## Building
 
 Build all modules from the repository root:
@@ -56,8 +71,8 @@ Then start a listener and subscribe to events:
 
 ```java
 import com.cs2gsi.GameStateListener;
-import com.cs2gsi.events.PlayerGotKill;
-import com.cs2gsi.events.RoundStarted;
+import com.cs2gsi.events.player.PlayerGotKill;
+import com.cs2gsi.events.round.RoundStarted;
 
 public class Main {
     public static void main(String[] args) throws Exception {

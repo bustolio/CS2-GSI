@@ -1,10 +1,10 @@
 package com.cs2gsi;
 
-import com.cs2gsi.events.AllPlayersUpdated;
+import com.cs2gsi.events.player.AllPlayersUpdated;
 import com.cs2gsi.events.CS2GameEvent;
-import com.cs2gsi.events.PlayerConnected;
-import com.cs2gsi.events.PlayerDisconnected;
-import com.cs2gsi.events.PlayerUpdated;
+import com.cs2gsi.events.player.PlayerConnected;
+import com.cs2gsi.events.player.PlayerDisconnected;
+import com.cs2gsi.events.player.PlayerUpdated;
 import com.cs2gsi.nodes.Player;
 
 class AllPlayersHandler extends EventHandler<CS2GameEvent> {

@@ -1,4 +1,6 @@
-package com.cs2gsi.events;
+package com.cs2gsi.events.bomb;
+
+import com.cs2gsi.events.CS2GameEvent;
 
 /**
  * Event for Bomb having been planted.

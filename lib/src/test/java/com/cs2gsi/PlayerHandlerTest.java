@@ -1,14 +1,14 @@
 package com.cs2gsi;
 
 import com.cs2gsi.events.CS2GameEvent;
-import com.cs2gsi.events.PlayerDied;
-import com.cs2gsi.events.PlayerHealthChanged;
-import com.cs2gsi.events.PlayerRespawned;
-import com.cs2gsi.events.PlayerStateChanged;
-import com.cs2gsi.events.PlayerTookDamage;
-import com.cs2gsi.events.PlayerUpdated;
-import com.cs2gsi.events.PlayerWeaponsDropped;
-import com.cs2gsi.events.PlayerWeaponsPickedUp;
+import com.cs2gsi.events.player.PlayerDied;
+import com.cs2gsi.events.player.PlayerHealthChanged;
+import com.cs2gsi.events.player.PlayerRespawned;
+import com.cs2gsi.events.player.PlayerStateChanged;
+import com.cs2gsi.events.player.PlayerTookDamage;
+import com.cs2gsi.events.player.PlayerUpdated;
+import com.cs2gsi.events.player.PlayerWeaponsDropped;
+import com.cs2gsi.events.player.PlayerWeaponsPickedUp;
 import com.cs2gsi.nodes.Player;
 import com.google.gson.JsonParser;
 import org.junit.jupiter.api.BeforeEach;

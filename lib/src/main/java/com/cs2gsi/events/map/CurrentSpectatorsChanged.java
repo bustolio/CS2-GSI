@@ -1,4 +1,6 @@
-package com.cs2gsi.events;
+package com.cs2gsi.events.map;
+
+import com.cs2gsi.events.UpdateEvent;
 
 /**
  * Event for the amount of current spectators change.

@@ -1,6 +1,6 @@
 package com.cs2gsi;
 
-import com.cs2gsi.events.AuthUpdated;
+import com.cs2gsi.events.provider.AuthUpdated;
 import com.cs2gsi.events.CS2GameEvent;
 
 class AuthHandler extends EventHandler<CS2GameEvent> {

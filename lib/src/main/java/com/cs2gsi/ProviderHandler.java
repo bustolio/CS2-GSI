@@ -1,9 +1,9 @@
 package com.cs2gsi;
 
 import com.cs2gsi.events.CS2GameEvent;
-import com.cs2gsi.events.ProviderNameChanged;
-import com.cs2gsi.events.ProviderTimestampChanged;
-import com.cs2gsi.events.ProviderUpdated;
+import com.cs2gsi.events.provider.ProviderNameChanged;
+import com.cs2gsi.events.provider.ProviderTimestampChanged;
+import com.cs2gsi.events.provider.ProviderUpdated;
 
 class ProviderHandler extends EventHandler<CS2GameEvent> {
     ProviderHandler(EventDispatcher<CS2GameEvent> dispatcher) {

@@ -1,4 +1,6 @@
-package com.cs2gsi.events;
+package com.cs2gsi.events.player;
+
+import com.cs2gsi.events.PlayerUpdateEvent;
 
 import com.cs2gsi.nodes.Player;
 import com.cs2gsi.nodes.helpers.Vector3D;

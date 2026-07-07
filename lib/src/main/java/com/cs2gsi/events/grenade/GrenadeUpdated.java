@@ -1,4 +1,6 @@
-package com.cs2gsi.events;
+package com.cs2gsi.events.grenade;
+
+import com.cs2gsi.events.EntityUpdateEvent;
 
 import com.cs2gsi.nodes.*;
 
