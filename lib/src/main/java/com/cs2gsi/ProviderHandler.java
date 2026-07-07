@@ -5,8 +5,8 @@ import com.cs2gsi.events.ProviderNameChanged;
 import com.cs2gsi.events.ProviderTimestampChanged;
 import com.cs2gsi.events.ProviderUpdated;
 
-public class ProviderHandler extends EventHandler<CS2GameEvent> {
-    public ProviderHandler(EventDispatcher<CS2GameEvent> dispatcher) {
+class ProviderHandler extends EventHandler<CS2GameEvent> {
+    ProviderHandler(EventDispatcher<CS2GameEvent> dispatcher) {
         super(dispatcher);
 
         dispatcher.subscribe(ProviderUpdated.class, this::onProviderUpdated);

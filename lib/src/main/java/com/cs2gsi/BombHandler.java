@@ -17,10 +17,10 @@ import com.cs2gsi.nodes.Player;
 
 import java.util.HashMap;
 
-public class BombHandler extends EventHandler<CS2GameEvent> {
+class BombHandler extends EventHandler<CS2GameEvent> {
     private final HashMap<String, Player> playerCache = new HashMap<>();
 
-    public BombHandler(EventDispatcher<CS2GameEvent> dispatcher) {
+    BombHandler(EventDispatcher<CS2GameEvent> dispatcher) {
         super(dispatcher);
 
         dispatcher.subscribe(PlayerUpdated.class, this::onPlayerUpdated);

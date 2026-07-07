@@ -1,4 +1,4 @@
-package com.cs2gsi.utils;
+package com.cs2gsi;
 
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 /**
  * A class for handling Steam games.
  */
-public final class SteamUtils {
+final class SteamUtils {
     private SteamUtils() {
     }
 

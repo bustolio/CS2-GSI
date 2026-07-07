@@ -10,10 +10,10 @@ import com.cs2gsi.events.TeamRoundVictory;
 import com.cs2gsi.nodes.Map;
 import com.cs2gsi.nodes.PlayerTeam;
 
-public class RoundHandler extends EventHandler<CS2GameEvent> {
+class RoundHandler extends EventHandler<CS2GameEvent> {
     private Map map = new Map();
 
-    public RoundHandler(EventDispatcher<CS2GameEvent> dispatcher) {
+    RoundHandler(EventDispatcher<CS2GameEvent> dispatcher) {
         super(dispatcher);
 
         dispatcher.subscribe(RoundUpdated.class, this::onRoundUpdated);

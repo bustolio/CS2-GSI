@@ -12,8 +12,8 @@ import com.cs2gsi.events.GrenadeVelocityChanged;
 import com.cs2gsi.events.NewGrenade;
 import com.cs2gsi.nodes.Grenade;
 
-public class AllGrenadesHandler extends EventHandler<CS2GameEvent> {
-    public AllGrenadesHandler(EventDispatcher<CS2GameEvent> dispatcher) {
+class AllGrenadesHandler extends EventHandler<CS2GameEvent> {
+    AllGrenadesHandler(EventDispatcher<CS2GameEvent> dispatcher) {
         super(dispatcher);
 
         dispatcher.subscribe(AllGrenadesUpdated.class, this::onAllGrenadesUpdated);

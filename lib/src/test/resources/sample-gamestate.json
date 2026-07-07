@@ -1,0 +1,134 @@
+{
+  "auth": {
+    "token": "s3cr3t"
+  },
+  "provider": {
+    "name": "Counter-Strike: Global Offensive",
+    "appid": 730,
+    "version": 14023,
+    "steamid": "76561198000000001",
+    "timestamp": 1751900000
+  },
+  "map": {
+    "mode": "competitive",
+    "name": "de_dust2",
+    "phase": "live",
+    "round": 5,
+    "team_ct": {
+      "score": 3,
+      "consecutive_round_losses": 1,
+      "timeouts_remaining": 1,
+      "matches_won_this_series": 0
+    },
+    "team_t": {
+      "score": 2,
+      "consecutive_round_losses": 2,
+      "timeouts_remaining": 1,
+      "matches_won_this_series": 0
+    },
+    "num_matches_to_win_series": 0,
+    "round_wins": {
+      "1": "ct_win_elimination",
+      "2": "t_win_bomb",
+      "3": "ct_win_defuse",
+      "4": "t_win_elimination",
+      "5": "ct_win_time"
+    }
+  },
+  "round": {
+    "phase": "live",
+    "bomb": "planted"
+  },
+  "player": {
+    "steamid": "76561198000000001",
+    "clan": "TeamClan",
+    "name": "PlayerOne",
+    "observer_slot": 4,
+    "team": "CT",
+    "activity": "playing",
+    "state": {
+      "health": 100,
+      "armor": 100,
+      "helmet": true,
+      "flashed": 0,
+      "smoked": 0,
+      "burning": 0,
+      "money": 3500,
+      "round_kills": 1,
+      "round_killhs": 1,
+      "round_totaldmg": 127,
+      "equip_value": 4750
+    },
+    "weapons": {
+      "weapon_0": {
+        "name": "weapon_knife",
+        "paintkit": "default",
+        "type": "Knife",
+        "state": "holstered"
+      },
+      "weapon_1": {
+        "name": "weapon_ak47",
+        "paintkit": "default",
+        "type": "Rifle",
+        "ammo_clip": 30,
+        "ammo_clip_max": 30,
+        "ammo_reserve": 90,
+        "state": "active"
+      }
+    },
+    "match_stats": {
+      "kills": 12,
+      "assists": 3,
+      "deaths": 7,
+      "mvps": 2,
+      "score": 31
+    },
+    "spectarget": "76561198000000002",
+    "position": "100.50, -200.25, 64.00",
+    "forward": "0.50, 0.75, 0.00"
+  },
+  "phase_countdowns": {
+    "phase": "live",
+    "phase_ends_in": "45.1"
+  },
+  "allplayers": {
+    "76561198000000001": {
+      "name": "PlayerOne",
+      "observer_slot": 4,
+      "team": "CT",
+      "state": {
+        "health": 100,
+        "armor": 100,
+        "helmet": true,
+        "money": 3500
+      }
+    },
+    "76561198000000002": {
+      "name": "PlayerTwo",
+      "observer_slot": 5,
+      "team": "T",
+      "state": {
+        "health": 82,
+        "armor": 95,
+        "helmet": false,
+        "money": 1200
+      }
+    }
+  },
+  "grenades": {
+    "129": {
+      "owner": "76561198000000002",
+      "position": "500.00, 300.00, 10.00",
+      "velocity": "0.00, 0.00, 0.00",
+      "lifetime": "2.1",
+      "type": "smoke",
+      "effecttime": "5.5"
+    }
+  },
+  "bomb": {
+    "state": "planted",
+    "position": "1000.00, 2000.00, 5.00",
+    "player": "76561198000000001",
+    "countdown": "35.5"
+  }
+}

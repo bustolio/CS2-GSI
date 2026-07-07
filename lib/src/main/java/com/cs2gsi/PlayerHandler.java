@@ -49,10 +49,10 @@ import com.cs2gsi.nodes.WeaponType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayerHandler extends EventHandler<CS2GameEvent> {
+class PlayerHandler extends EventHandler<CS2GameEvent> {
     private Provider providerCache = new Provider();
 
-    public PlayerHandler(EventDispatcher<CS2GameEvent> dispatcher) {
+    PlayerHandler(EventDispatcher<CS2GameEvent> dispatcher) {
         super(dispatcher);
 
         dispatcher.subscribe(ProviderUpdated.class, this::onProviderUpdated);
@@ -155,7 +155,8 @@ public class PlayerHandler extends EventHandler<CS2GameEvent> {
                         }
 
                         if (weapon.ammoReserve != previousWeapon.ammoReserve) {
-                            dispatcher.broadcast(new PlayerWeaponAmmoReserveChanged(weapon.ammoReserve, previousWeapon.ammoReserve, weapon, evt.newValue));
+                            dispatcher.broadcast(new PlayerWeaponAmmoReserveChanged(
+                                    weapon.ammoReserve, previousWeapon.ammoReserve, weapon, evt.newValue));
                         }
                     }
                 }

@@ -14,10 +14,10 @@ import com.cs2gsi.events.RoundUpdated;
 /**
  * Compares consecutive game states and broadcasts section update events.
  */
-public class GameStateHandler extends EventHandler<CS2GameEvent> {
+class GameStateHandler extends EventHandler<CS2GameEvent> {
     private GameState previousGameState = new GameState();
 
-    public GameStateHandler(EventDispatcher<CS2GameEvent> dispatcher) {
+    GameStateHandler(EventDispatcher<CS2GameEvent> dispatcher) {
         super(dispatcher);
     }
 

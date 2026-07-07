@@ -8,13 +8,13 @@ import com.cs2gsi.events.RoundChanged;
 import com.cs2gsi.nodes.Player;
 import com.cs2gsi.nodes.Weapon;
 
-public class KillfeedHandler extends EventHandler<CS2GameEvent> {
+class KillfeedHandler extends EventHandler<CS2GameEvent> {
     private Player lastKiller = new Player();
     private Player lastVictim = new Player();
     private Weapon killerWeapon = new Weapon();
     private boolean isHeadshot;
 
-    public KillfeedHandler(EventDispatcher<CS2GameEvent> dispatcher) {
+    KillfeedHandler(EventDispatcher<CS2GameEvent> dispatcher) {
         super(dispatcher);
 
         dispatcher.subscribe(PlayerDied.class, this::onPlayerDied);

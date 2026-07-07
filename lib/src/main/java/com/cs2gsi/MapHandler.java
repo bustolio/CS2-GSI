@@ -29,10 +29,10 @@ import com.cs2gsi.events.WarmupStarted;
 import com.cs2gsi.nodes.PlayerTeam;
 import com.cs2gsi.nodes.RoundConclusion;
 
-public class MapHandler extends EventHandler<CS2GameEvent> {
+class MapHandler extends EventHandler<CS2GameEvent> {
     private final int maxRounds = 24; // Hardcoded to 24
 
-    public MapHandler(EventDispatcher<CS2GameEvent> dispatcher) {
+    MapHandler(EventDispatcher<CS2GameEvent> dispatcher) {
         super(dispatcher);
 
         dispatcher.subscribe(MapUpdated.class, this::onMapUpdated);

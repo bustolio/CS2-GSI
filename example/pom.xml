@@ -7,13 +7,21 @@
     <parent>
         <groupId>com.cs2gsi</groupId>
         <artifactId>cs2gsi-parent</artifactId>
-        <version>1.0</version>
+        <version>1.0.0</version>
     </parent>
 
     <artifactId>cs2gsi-example</artifactId>
     <packaging>jar</packaging>
 
     <name>Counter-Strike 2 GSI Example Program</name>
+    <url>https://github.com/bustolio/CS2-GSI</url>
+
+    <scm>
+        <connection>scm:git:https://github.com/bustolio/CS2-GSI.git</connection>
+        <developerConnection>scm:git:https://github.com/bustolio/CS2-GSI.git</developerConnection>
+        <url>https://github.com/bustolio/CS2-GSI</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <dependencies>
         <dependency>

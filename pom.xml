@@ -6,11 +6,27 @@
 
     <groupId>com.cs2gsi</groupId>
     <artifactId>cs2gsi-parent</artifactId>
-    <version>1.0</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <name>Counter-Strike 2 GSI (Parent)</name>
     <description>A Java library to interface with the Game State Integration found in Counter-Strike 2.</description>
+    <url>https://github.com/bustolio/CS2-GSI</url>
+
+    <developers>
+        <developer>
+            <id>bustolio</id>
+            <name>bustolio</name>
+            <url>https://github.com/bustolio</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/bustolio/CS2-GSI.git</connection>
+        <developerConnection>scm:git:https://github.com/bustolio/CS2-GSI.git</developerConnection>
+        <url>https://github.com/bustolio/CS2-GSI</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <modules>
         <module>lib</module>
@@ -22,4 +38,42 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>5.12.2</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.5.3</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.3.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.11.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>3.6.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>

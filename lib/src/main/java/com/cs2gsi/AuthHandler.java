@@ -3,8 +3,8 @@ package com.cs2gsi;
 import com.cs2gsi.events.AuthUpdated;
 import com.cs2gsi.events.CS2GameEvent;
 
-public class AuthHandler extends EventHandler<CS2GameEvent> {
-    public AuthHandler(EventDispatcher<CS2GameEvent> dispatcher) {
+class AuthHandler extends EventHandler<CS2GameEvent> {
+    AuthHandler(EventDispatcher<CS2GameEvent> dispatcher) {
         super(dispatcher);
 
         dispatcher.subscribe(AuthUpdated.class, this::onAuthUpdated);

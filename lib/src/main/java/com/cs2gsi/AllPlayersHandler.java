@@ -7,8 +7,8 @@ import com.cs2gsi.events.PlayerDisconnected;
 import com.cs2gsi.events.PlayerUpdated;
 import com.cs2gsi.nodes.Player;
 
-public class AllPlayersHandler extends EventHandler<CS2GameEvent> {
-    public AllPlayersHandler(EventDispatcher<CS2GameEvent> dispatcher) {
+class AllPlayersHandler extends EventHandler<CS2GameEvent> {
+    AllPlayersHandler(EventDispatcher<CS2GameEvent> dispatcher) {
         super(dispatcher);
 
         dispatcher.subscribe(AllPlayersUpdated.class, this::onAllPlayersUpdated);

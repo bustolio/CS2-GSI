@@ -5,8 +5,8 @@ import com.cs2gsi.events.PhaseCountdownsUpdated;
 import com.cs2gsi.events.PhaseEndTimeChanged;
 import com.cs2gsi.events.RoundPhaseUpdated;
 
-public class PhaseCountdownsHandler extends EventHandler<CS2GameEvent> {
-    public PhaseCountdownsHandler(EventDispatcher<CS2GameEvent> dispatcher) {
+class PhaseCountdownsHandler extends EventHandler<CS2GameEvent> {
+    PhaseCountdownsHandler(EventDispatcher<CS2GameEvent> dispatcher) {
         super(dispatcher);
 
         dispatcher.subscribe(PhaseCountdownsUpdated.class, this::onPhaseCountdownsUpdated);

@@ -48,7 +48,7 @@ Add the library as a dependency (after building/installing it locally):
 <dependency>
     <groupId>com.cs2gsi</groupId>
     <artifactId>cs2gsi</artifactId>
-    <version>1.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -96,15 +96,19 @@ for a fuller demonstration.
 
 ```bash
 mvn -pl example -am clean package
-java -jar example/target/cs2gsi-example-1.0.jar
+java -jar example/target/cs2gsi-example-1.0.0.jar
 ```
 
 > On Windows, binding the listener may require running as **Administrator**.
 
 ### Running the JavaFX viewer
 
+Install the modules first, then invoke the `javafx:run` goal on the viewer module alone
+(plugin goals, unlike lifecycle phases, cannot be combined with `-am`):
+
 ```bash
-mvn -pl viewer -am javafx:run
+mvn clean install
+mvn -pl viewer javafx:run
 ```
 
 ## Configuring Counter-Strike 2
@@ -113,7 +117,3 @@ mvn -pl viewer -am javafx:run
 `csgo/cfg` directory, pointing CS2 at your listener (e.g. `http://127.0.0.1:4000/`). Restart
 Counter-Strike 2 after the file is generated so it picks up the integration. The port passed to
 `GameStateListener` must match the one in the generated config.
-
-## License
-
-See the repository for license details.

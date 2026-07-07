@@ -1,4 +1,4 @@
-package com.cs2gsi.utils;
+package com.cs2gsi;
 
 import java.io.IOException;
 import java.io.PushbackReader;
@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Class that serializes and deserializes the ACF (Valve KeyValues) file format.
  */
-public class ACF {
+class ACF {
     private static final Map<Character, Character> ESCAPE_CHARACTERS = Map.of(
             'r', '\r',
             'n', '\n',
@@ -28,10 +28,10 @@ public class ACF {
     private final LinkedHashMap<String, String> items = new LinkedHashMap<>();
     private final LinkedHashMap<String, ACF> children = new LinkedHashMap<>();
 
-    public ACF() {
+    ACF() {
     }
 
-    public ACF(Path filename) {
+    ACF(Path filename) {
         if (Files.exists(filename)) {
             try (Reader reader = Files.newBufferedReader(filename, StandardCharsets.UTF_8);
                  PushbackReader pushbackReader = new PushbackReader(reader)) {

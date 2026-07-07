@@ -17,7 +17,7 @@ import java.util.function.UnaryOperator;
  *
  * @param <T> The base event type.
  */
-public class EventDispatcher<T extends BaseEvent> {
+class EventDispatcher<T extends BaseEvent> {
     private final Object subscriptionsLock = new Object();
 
     private final Map<Class<?>, Set<Consumer<T>>> subscriptions = new HashMap<>();
@@ -26,7 +26,7 @@ public class EventDispatcher<T extends BaseEvent> {
 
     private final Class<T> baseEventType;
 
-    public EventDispatcher(Class<T> baseEventType) {
+    EventDispatcher(Class<T> baseEventType) {
         this.baseEventType = baseEventType;
     }
 

@@ -48,19 +48,20 @@ public class GameStateListener extends CS2EventsInterface implements AutoCloseab
     // Dispatcher for game events.
     private final EventDispatcher<CS2GameEvent> dispatcher = new EventDispatcher<>(CS2GameEvent.class);
 
-    // Game State handlers.
-    private final AuthHandler authHandler = new AuthHandler(dispatcher);
-    private final ProviderHandler providerHandler = new ProviderHandler(dispatcher);
-    private final MapHandler mapHandler = new MapHandler(dispatcher);
-    private final RoundHandler roundHandler = new RoundHandler(dispatcher);
-    private final PlayerHandler playerHandler = new PlayerHandler(dispatcher);
-    private final PhaseCountdownsHandler phaseCountdownsHandler = new PhaseCountdownsHandler(dispatcher);
-    private final AllPlayersHandler allPlayersHandler = new AllPlayersHandler(dispatcher);
-    private final AllGrenadesHandler allGrenadesHandler = new AllGrenadesHandler(dispatcher);
-    private final BombHandler bombHandler = new BombHandler(dispatcher);
-
-    // Custom handlers.
-    private final KillfeedHandler killfeedHandler = new KillfeedHandler(dispatcher);
+    // Game State and custom handlers subscribe themselves to the dispatcher and
+    // are kept alive by those subscriptions; no field references are needed.
+    {
+        new AuthHandler(dispatcher);
+        new ProviderHandler(dispatcher);
+        new MapHandler(dispatcher);
+        new RoundHandler(dispatcher);
+        new PlayerHandler(dispatcher);
+        new PhaseCountdownsHandler(dispatcher);
+        new AllPlayersHandler(dispatcher);
+        new AllGrenadesHandler(dispatcher);
+        new BombHandler(dispatcher);
+        new KillfeedHandler(dispatcher);
+    }
 
     // Overall GameState handler.
     private final GameStateHandler gameStateHandler = new GameStateHandler(dispatcher);
