@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.cs2gsi</groupId>
+        <groupId>de.witzurke</groupId>
         <artifactId>cs2gsi-parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.1.0</version>
     </parent>
 
     <artifactId>cs2gsi-example</artifactId>
@@ -20,12 +20,12 @@
         <connection>scm:git:https://github.com/bustolio/CS2-GSI.git</connection>
         <developerConnection>scm:git:https://github.com/bustolio/CS2-GSI.git</developerConnection>
         <url>https://github.com/bustolio/CS2-GSI</url>
-        <tag>HEAD</tag>
+        <tag>${project.version}</tag>
     </scm>
 
     <dependencies>
         <dependency>
-            <groupId>com.cs2gsi</groupId>
+            <groupId>de.witzurke</groupId>
             <artifactId>cs2gsi</artifactId>
             <version>${project.version}</version>
         </dependency>

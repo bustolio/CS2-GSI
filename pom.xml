@@ -4,19 +4,26 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.cs2gsi</groupId>
+    <groupId>de.witzurke</groupId>
     <artifactId>cs2gsi-parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <packaging>pom</packaging>
 
     <name>Counter-Strike 2 GSI (Parent)</name>
     <description>A Java library to interface with the Game State Integration found in Counter-Strike 2.</description>
     <url>https://github.com/bustolio/CS2-GSI</url>
 
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://opensource.org/license/mit</url>
+        </license>
+    </licenses>
+
     <developers>
         <developer>
             <id>bustolio</id>
-            <name>bustolio</name>
+            <name>Kjell Witzurke</name>
             <url>https://github.com/bustolio</url>
         </developer>
     </developers>
@@ -25,7 +32,7 @@
         <connection>scm:git:https://github.com/bustolio/CS2-GSI.git</connection>
         <developerConnection>scm:git:https://github.com/bustolio/CS2-GSI.git</developerConnection>
         <url>https://github.com/bustolio/CS2-GSI</url>
-        <tag>HEAD</tag>
+        <tag>${project.version}</tag>
     </scm>
 
     <modules>
@@ -37,6 +44,8 @@
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Fixed timestamp for reproducible jars, set it to the release date. -->
+        <project.build.outputTimestamp>2026-09-20T00:00:00Z</project.build.outputTimestamp>
     </properties>
 
     <dependencyManagement>
@@ -56,7 +65,19 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <version>3.14.1</version>
+                    <configuration>
+                        <showWarnings>true</showWarnings>
+                        <compilerArgs>
+                            <!-- Named instead of "all": JDK 21+ adds this-escape, which fires on every node constructor. -->
+                            <arg>-Xlint:cast,deprecation,divzero,empty,fallthrough,finally,overrides,rawtypes,removal,serial,static,try,unchecked,varargs</arg>
+                        </compilerArgs>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.4.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -81,4 +102,38 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <profiles>
+        <!-- Maven Central: ./mvnw -Prelease clean deploy -pl lib -am -->
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.2.8</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.11.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

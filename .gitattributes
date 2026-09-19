@@ -1,0 +1,4 @@
+* text=auto eol=lf
+# JitPack and CI run mvnw on Linux, CRLF would break its shebang line.
+mvnw text eol=lf
+*.cmd text eol=crlf

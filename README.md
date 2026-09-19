@@ -21,7 +21,7 @@ subscribable game events to your application.
 ## Requirements
 
 - **Java 17** or newer
-- **Maven 3.6+**
+- **Maven 3.6.3+**, or the included `./mvnw` wrapper
 - **Counter-Strike 2** (to actually emit game state)
 
 ## Project structure
@@ -59,9 +59,31 @@ mvn clean install
 
 ## Usage
 
-### Via JitPack (recommended)
+### Via Maven Central (recommended)
 
-The library is published through [JitPack](https://jitpack.io). Add the JitPack
+The library is on Maven Central, so no extra repository is needed. Maven:
+
+```xml
+<dependency>
+    <groupId>de.witzurke</groupId>
+    <artifactId>cs2gsi</artifactId>
+    <version>1.1.0</version>
+</dependency>
+```
+
+Gradle:
+
+```groovy
+dependencies {
+    implementation 'de.witzurke:cs2gsi:1.1.0'
+}
+```
+
+The Java package is `com.cs2gsi`. The JAR declares the module name `com.cs2gsi` for the module path.
+
+### Via JitPack
+
+[JitPack](https://jitpack.io) builds the library from a Git tag. Add the JitPack
 repository and the `cs2gsi` dependency to your `pom.xml`:
 
 ```xml
@@ -75,7 +97,7 @@ repository and the `cs2gsi` dependency to your `pom.xml`:
 <dependency>
     <groupId>com.github.bustolio.CS2-GSI</groupId>
     <artifactId>cs2gsi</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -91,23 +113,18 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.bustolio.CS2-GSI:cs2gsi:1.0.0'
+    implementation 'com.github.bustolio.CS2-GSI:cs2gsi:1.1.0'
 }
 ```
 
 ### Via a local build
 
-Alternatively, build and install the library into your local Maven repository and depend on it directly:
+`mvn clean install` puts the library into your local Maven repository under the same
+`de.witzurke:cs2gsi` coordinates as on Maven Central.
 
-```xml
-<dependency>
-    <groupId>com.cs2gsi</groupId>
-    <artifactId>cs2gsi</artifactId>
-    <version>1.0.0</version>
-</dependency>
-```
+### Listening for events
 
-Then start a listener and subscribe to events:
+Start a listener and subscribe to events:
 
 ```java
 import com.cs2gsi.GameStateListener;
@@ -117,8 +134,8 @@ import com.cs2gsi.events.round.RoundStarted;
 public class Main {
     public static void main(String[] args) throws Exception {
         try (GameStateListener gsl = new GameStateListener(4000)) {
-            // Generate the gamestate_integration_*.cfg file CS2 needs.
-            gsl.generateGSIConfigFile("Example");
+            // Write the gamestate_integration_*.cfg file CS2 needs.
+            gsl.installGSIConfigFile("Example");
 
             // React to the entire game state on every update.
             gsl.onNewGameState(state -> {
@@ -133,7 +150,7 @@ public class Main {
                 System.out.println("Round " + e.round + " started."));
 
             if (!gsl.start()) {
-                System.out.println("Could not start. Try running as Administrator.");
+                System.out.println("Could not start. Is another program using port 4000?");
                 return;
             }
 
@@ -151,10 +168,11 @@ for a fuller demonstration.
 
 ```bash
 mvn -pl example -am clean package
-java -jar example/target/cs2gsi-example-1.0.0.jar
+java -jar example/target/cs2gsi-example-1.1.0.jar
 ```
 
-> On Windows, binding the listener may require running as **Administrator**.
+> `start()` returns `false` when it cannot bind the address. The usual cause is another program
+> on the same port. The listener binds to the loopback address and needs no administrator rights.
 
 ### Running the JavaFX viewer
 
@@ -168,7 +186,46 @@ mvn -pl viewer javafx:run
 
 ## Configuring Counter-Strike 2
 
-`generateGSIConfigFile(...)` writes a `gamestate_integration_*.cfg` file into the game's
-`csgo/cfg` directory, pointing CS2 at your listener (e.g. `http://127.0.0.1:4000/`). Restart
-Counter-Strike 2 after the file is generated so it picks up the integration. The port passed to
-`GameStateListener` must match the one in the generated config.
+`installGSIConfigFile(...)` writes a `gamestate_integration_*.cfg` file into the game's
+`csgo/cfg` directory, pointing CS2 at your listener (e.g. `http://127.0.0.1:4000/`). The port
+passed to `GameStateListener` must match the one in the file.
+
+The method returns a `GSIConfigResult` with the file path and a status of `CREATED`, `UPDATED`,
+`UNCHANGED` or `FAILED`. It skips the write when the content already matches. CS2 reads the file
+only at startup, so a running game needs a restart after `CREATED` or `UPDATED`. On `FAILED`,
+`cause()` holds the exception, for example when CS2 is not installed or the folder is read-only.
+
+The older `generateGSIConfigFile(...)` does the same and returns only a boolean. It is deprecated.
+
+### Authentication token
+
+Without a token, every program on the machine can post game states to the listener. Set one
+before you install the configuration file:
+
+```java
+gsl.setAuthToken("a-long-random-string");
+gsl.installGSIConfigFile("Example");
+```
+
+The file then carries an `auth` block, the game sends the token with every update, and the
+listener answers 401 to updates without it.
+
+## Threading and errors
+
+All handlers run on one daemon thread named `CS2GSI-GameStateListener`, in the order the game
+sent its updates. A handler that blocks delays every later update, and the game drops a request
+after the `timeout` in the configuration file, which is 5 seconds in the generated one. Hand slow
+work to another thread. Switch to the UI thread yourself before you touch JavaFX or Swing, for
+example with `Platform.runLater`. A daemon thread does not keep the JVM alive, which is why the
+example above waits on `System.in`.
+
+A handler that throws does not stop the other handlers. The exception goes to the thread's
+uncaught exception handler, which prints it to `System.err` unless you installed your own with
+`Thread.setDefaultUncaughtExceptionHandler`.
+
+The listener accepts POST requests of up to 4 MiB and refuses requests that carry an `Origin`
+header, so a web page open in a browser on the same machine cannot feed it made-up game states.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
