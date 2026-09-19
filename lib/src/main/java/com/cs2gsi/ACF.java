@@ -167,6 +167,9 @@ class ACF {
 
                     if (mapped != null) {
                         builder.append((char) mapped);
+                    } else {
+                        // Not an escape sequence, e.g. a Windows path written with single backslashes.
+                        builder.append('\\').append((char) escape);
                     }
                 }
             } else {
@@ -177,13 +180,15 @@ class ACF {
         return builder.toString();
     }
 
+    private static String escape(String text) {
+        return text.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
     public String buildString(int indentAmount) {
         int longestKeyLength = 0;
 
         for (String key : items.keySet()) {
-            if (key.length() > longestKeyLength) {
-                longestKeyLength = key.length();
-            }
+            longestKeyLength = Math.max(longestKeyLength, escape(key).length());
         }
 
         String indentation = "    ".repeat(indentAmount);
@@ -191,21 +196,23 @@ class ACF {
         StringBuilder stringBuilder = new StringBuilder();
 
         for (var itemEntry : items.entrySet()) {
+            String key = escape(itemEntry.getKey());
+
             // Indent beginning
             stringBuilder.append(indentation);
-            stringBuilder.append('"').append(itemEntry.getKey()).append('"');
+            stringBuilder.append('"').append(key).append('"');
             // Pretty print
-            stringBuilder.append(" ".repeat(longestKeyLength - itemEntry.getKey().length()));
+            stringBuilder.append(" ".repeat(longestKeyLength - key.length()));
             // Separator between the key and value
             stringBuilder.append("    ");
-            stringBuilder.append('"').append(itemEntry.getValue()).append('"');
+            stringBuilder.append('"').append(escape(itemEntry.getValue())).append('"');
             stringBuilder.append('\n');
         }
 
         for (var childEntry : children.entrySet()) {
             // Indent beginning
             stringBuilder.append(indentation);
-            stringBuilder.append('"').append(childEntry.getKey()).append('"').append('\n');
+            stringBuilder.append('"').append(escape(childEntry.getKey())).append('"').append('\n');
             // Opening {
             stringBuilder.append(indentation).append("{").append('\n');
             stringBuilder.append(childEntry.getValue().buildString(indentAmount + 1));

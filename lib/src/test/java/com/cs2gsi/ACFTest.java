@@ -59,6 +59,22 @@ class ACFTest {
     }
 
     @Test
+    void quotesAndBackslashesSurviveARoundTrip() throws IOException {
+        ACF root = new ACF();
+        root.getItems().put("path", "C:\\Games\\\"Steam\"");
+
+        assertEquals(root, parse(root.toString()));
+    }
+
+    @Test
+    void keepsBackslashesThatAreNotEscapeSequences() throws IOException {
+        // Hand-edited libraryfolders.vdf files carry paths with single backslashes.
+        ACF parsed = parse("\"path\"    \"D:\\SteamLibrary\"");
+
+        assertEquals("D:\\SteamLibrary", parsed.getItems().get("path"));
+    }
+
+    @Test
     void missingFileYieldsEmptyAcf(@TempDir Path tempDir) {
         ACF acf = new ACF(tempDir.resolve("does-not-exist.acf"));
 

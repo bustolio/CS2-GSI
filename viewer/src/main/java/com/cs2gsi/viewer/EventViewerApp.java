@@ -1,6 +1,7 @@
 package com.cs2gsi.viewer;
 
 import com.cs2gsi.CS2GSIFile;
+import com.cs2gsi.GSIConfigResult;
 import com.cs2gsi.GameStateListener;
 import com.cs2gsi.events.CS2GameEvent;
 import com.google.gson.Gson;
@@ -278,11 +279,13 @@ public class EventViewerApp extends Application {
             return;
         }
 
-        if (CS2GSIFile.createFile("EventViewer", port)) {
-            listenerLabel.setText("GSI config generated for port " + port);
-        } else {
-            listenerLabel.setText("Could not generate GSI config (game not found?)");
-        }
+        GSIConfigResult result = CS2GSIFile.installFile("EventViewer", "http://localhost:" + port + "/");
+
+        listenerLabel.setText(switch (result.status()) {
+            case CREATED, UPDATED -> "GSI config written for port " + port + ", restart CS2";
+            case UNCHANGED -> "GSI config already up to date for port " + port;
+            case FAILED -> "Could not write GSI config: " + result.cause().getMessage();
+        });
     }
 
     // --- Event flow ----------------------------------------------------------

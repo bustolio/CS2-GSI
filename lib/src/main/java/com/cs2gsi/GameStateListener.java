@@ -1,7 +1,6 @@
 package com.cs2gsi;
 
 import com.cs2gsi.events.CS2GameEvent;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
@@ -11,6 +10,7 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -27,14 +27,29 @@ import java.util.regex.Pattern;
  * parsed into a {@link GameState} object and offered to your application through
  * the {@link #onNewGameState(Consumer)} listeners. More granular game events can
  * be subscribed to via {@link #subscribe(Class, Consumer)}.
+ * <p>
+ * All handlers run on one daemon thread named {@code CS2GSI-GameStateListener}, in the order the
+ * game sent its updates. A handler that blocks delays every later update, and the game gives up on
+ * a request after the timeout in its configuration file (5 seconds in the generated one). Hand slow
+ * work to another thread, and switch to the UI thread yourself before touching JavaFX or Swing.
+ * Because the thread is a daemon, a running listener does not keep the JVM alive.
+ * <p>
+ * Only POST requests of up to 4 MiB are accepted, and requests that carry an {@code Origin} header
+ * are refused, so a web page open in a browser on the same machine cannot feed the listener.
  */
 public class GameStateListener extends CS2EventsInterface implements AutoCloseable {
+    // The host must not contain a quote, it ends up inside a quoted value of the configuration file.
     private static final Pattern URI_PATTERN =
-            Pattern.compile("^https?://(.+):([0-9]+)/$", Pattern.CASE_INSENSITIVE);
+            Pattern.compile("^https?://([^\\s\"/]+):([0-9]+)/$", Pattern.CASE_INSENSITIVE);
+
+    // Real payloads are tens of kilobytes.
+    private static final int MAX_BODY_BYTES = 4 * 1024 * 1024;
 
     private final Object gamestateLock = new Object();
 
     private volatile boolean running = false;
+    private volatile int boundPort;
+    private volatile String authToken;
     private final int port;
     private final String uri;
     private final String host;
@@ -51,7 +66,6 @@ public class GameStateListener extends CS2EventsInterface implements AutoCloseab
     // Game State and custom handlers subscribe themselves to the dispatcher and
     // are kept alive by those subscriptions; no field references are needed.
     {
-        new AuthHandler(dispatcher);
         new ProviderHandler(dispatcher);
         new MapHandler(dispatcher);
         new RoundHandler(dispatcher);
@@ -106,7 +120,9 @@ public class GameStateListener extends CS2EventsInterface implements AutoCloseab
      * The previous game state.
      */
     public GameState getPreviousGameState() {
-        return previousGameState;
+        synchronized (gamestateLock) {
+            return previousGameState;
+        }
     }
 
     /**
@@ -119,10 +135,11 @@ public class GameStateListener extends CS2EventsInterface implements AutoCloseab
     }
 
     /**
-     * Gets the port that is being listened.
+     * Gets the port that is being listened.<br>
+     * While the listener runs this is the bound port, which differs from the requested one for port 0.
      */
     public int getPort() {
-        return port;
+        return running ? boundPort : port;
     }
 
     /**
@@ -155,21 +172,49 @@ public class GameStateListener extends CS2EventsInterface implements AutoCloseab
     }
 
     /**
-     * Attempts to create a Game State Integration configuration file.
+     * Sets a token the game has to send with every game state.<br>
+     * Call this before {@link #installGSIConfigFile(String)}, which writes the token into the
+     * configuration file. From then on the listener answers 401 to game states without the token
+     * and does not hand them to any handler, so other programs on the machine cannot feed it.
+     *
+     * @param authToken The token, or null to accept every game state. Use letters and digits.
+     */
+    public void setAuthToken(String authToken) {
+        this.authToken = (authToken == null || authToken.isEmpty()) ? null : authToken;
+    }
+
+    /**
+     * Attempts to create a Game State Integration configuration file.<br>
+     * Writes only if the file is missing or its content differs.
      *
      * @param name The name of your integration.
-     * @return Returns true on success, false otherwise.
+     * @return Returns true if the file was written or already had the expected content, false otherwise.
+     * @deprecated Use {@link #installGSIConfigFile(String)}, which also tells whether the game needs
+     *             a restart and why an installation failed.
      */
+    @Deprecated
     public boolean generateGSIConfigFile(String name) {
-        return CS2GSIFile.createFile(name, uri);
+        return installGSIConfigFile(name).status() != GSIConfigResult.Status.FAILED;
+    }
+
+    /**
+     * Installs a Game State Integration configuration file and reports whether it changed.<br>
+     * Counter-Strike 2 only reads the file at startup, so a created or updated file needs a game restart.
+     *
+     * @param name The name of your integration.
+     * @return Returns what happened to the file and where it is.
+     */
+    public GSIConfigResult installGSIConfigFile(String name) {
+        return CS2GSIFile.installFile(name, uri, authToken);
     }
 
     /**
      * Starts listening for GameState requests.
      *
-     * @return Returns true on success, false otherwise.
+     * @return Returns true on success. Returns false if the listener already runs or the address
+     *         could not be bound, which usually means another program uses the port.
      */
-    public boolean start() {
+    public synchronized boolean start() {
         if (running) {
             return false;
         }
@@ -200,6 +245,7 @@ public class GameStateListener extends CS2EventsInterface implements AutoCloseab
         httpServer.createContext("/", this::receiveGameState);
         httpServer.setExecutor(executor);
         httpServer.start();
+        boundPort = httpServer.getAddress().getPort();
         running = true;
 
         return true;
@@ -208,7 +254,7 @@ public class GameStateListener extends CS2EventsInterface implements AutoCloseab
     /**
      * Stops listening for GameState requests.
      */
-    public void stop() {
+    public synchronized void stop() {
         running = false;
 
         if (httpServer != null) {
@@ -223,21 +269,65 @@ public class GameStateListener extends CS2EventsInterface implements AutoCloseab
     }
 
     private void receiveGameState(HttpExchange exchange) throws IOException {
-        String jsonData;
+        int rejection = rejectionStatus(exchange);
+        byte[] body = new byte[0];
 
-        try (InputStream inputStream = exchange.getRequestBody()) {
-            jsonData = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        if (rejection == 0) {
+            try (InputStream inputStream = exchange.getRequestBody()) {
+                body = inputStream.readNBytes(MAX_BODY_BYTES + 1);
+            }
+
+            if (body.length > MAX_BODY_BYTES) {
+                rejection = 413;
+            }
         }
 
-        exchange.sendResponseHeaders(200, -1);
+        GameState gameState = null;
+
+        if (rejection == 0) {
+            try {
+                String jsonData = new String(body, StandardCharsets.UTF_8);
+                gameState = new GameState(JsonParser.parseString(jsonData).getAsJsonObject());
+            } catch (RuntimeException ignored) {
+                // Malformed game state data, nothing to do here.
+            }
+
+            if (gameState != null && !hasExpectedToken(gameState)) {
+                rejection = 401;
+            }
+        }
+
+        exchange.sendResponseHeaders(rejection == 0 ? 200 : rejection, -1);
         exchange.close();
 
-        try {
-            JsonObject parsedData = JsonParser.parseString(jsonData).getAsJsonObject();
-            setCurrentGameState(new GameState(parsedData));
-        } catch (RuntimeException ignored) {
-            // Malformed game state data, nothing to do here.
+        if (rejection == 0 && gameState != null) {
+            setCurrentGameState(gameState);
         }
+    }
+
+    private boolean hasExpectedToken(GameState gameState) {
+        String expected = authToken;
+
+        if (expected == null) {
+            return true;
+        }
+
+        // Constant time, so response timing does not leak how much of a guessed token matched.
+        String received = gameState.auth.getOrDefault("token", "");
+        return MessageDigest.isEqual(expected.getBytes(StandardCharsets.UTF_8), received.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static int rejectionStatus(HttpExchange exchange) {
+        if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+            return 405;
+        }
+
+        // Browsers add Origin to every cross-site POST, the game never sends it.
+        if (exchange.getRequestHeaders().containsKey("Origin")) {
+            return 403;
+        }
+
+        return 0;
     }
 
     private void setCurrentGameState(GameState value) {
@@ -248,13 +338,15 @@ public class GameStateListener extends CS2EventsInterface implements AutoCloseab
 
             previousGameState = currentGameState;
             currentGameState = value;
-            raiseOnNewGameState(currentGameState);
         }
+
+        // Outside the lock, so a handler that waits for a thread calling getCurrentGameState() cannot deadlock.
+        raiseOnNewGameState(value);
     }
 
     private void raiseOnNewGameState(GameState gameState) {
         for (Consumer<GameState> handler : newGameStateListeners) {
-            handler.accept(gameState);
+            deliver(handler, gameState);
         }
 
         gameStateHandler.onNewGameState(gameState);

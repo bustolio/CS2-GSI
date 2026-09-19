@@ -1,5 +1,6 @@
 package com.cs2gsi.example;
 
+import com.cs2gsi.GSIConfigResult;
 import com.cs2gsi.GameState;
 import com.cs2gsi.GameStateListener;
 import com.cs2gsi.events.bomb.BombStateUpdated;
@@ -20,8 +21,13 @@ import java.io.IOException;
 public class Program {
     public static void main(String[] args) throws IOException {
         try (GameStateListener gsl = new GameStateListener(4000)) {
-            if (!gsl.generateGSIConfigFile("Example")) {
-                System.out.println("Could not generate GSI configuration file.");
+            GSIConfigResult config = gsl.installGSIConfigFile("Example");
+
+            switch (config.status()) {
+                case CREATED, UPDATED ->
+                        System.out.println("Wrote " + config.file() + ". Restart Counter-Strike 2 so it reads the file.");
+                case UNCHANGED -> System.out.println("GSI configuration file is up to date.");
+                case FAILED -> System.out.println("Could not write the GSI configuration file: " + config.cause());
             }
 
             // There are many callbacks that can be subscribed.
@@ -38,7 +44,7 @@ public class Program {
             gsl.subscribe(RoundConcluded.class, Program::onRoundConcluded);
 
             if (!gsl.start()) {
-                System.out.println("GameStateListener could not start. Try running this program as Administrator. Exiting.");
+                System.out.println("GameStateListener could not start. Is another program using port 4000? Exiting.");
                 System.exit(0);
             }
 

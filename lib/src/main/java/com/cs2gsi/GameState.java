@@ -19,7 +19,9 @@ import com.google.gson.JsonObject;
 public class GameState extends Node {
     /**
      * Information about GSI authentication.<br>
-     * Enabled by including {@code "auth" "1"} in the game state cfg file.
+     * The game sends it when the cfg file has an {@code "auth"} block with a {@code "token"},
+     * which {@link GameStateListener#installGSIConfigFile(String)} writes after
+     * {@link GameStateListener#setAuthToken(String)}.
      */
     public final Auth auth;
 
@@ -113,7 +115,7 @@ public class GameState extends Node {
     /**
      * A previous GameState.
      */
-    public GameState getPreviously() {
+    public synchronized GameState getPreviously() {
         if (previousGameState == null) {
             previousGameState = new GameState(getJObject("previously"));
         }

@@ -18,6 +18,10 @@ import java.util.function.Consumer;
  * }</pre>
  * Subscribing to a base event type (for example {@code PlayerHealthChanged}) also
  * receives its subtypes (for example {@code PlayerDied}).
+ * <p>
+ * A handler that throws does not stop the other handlers. The exception goes to the uncaught
+ * exception handler of the dispatching thread, which prints it to {@code System.err} unless the
+ * application installed its own with {@link Thread#setDefaultUncaughtExceptionHandler}.
  */
 public abstract class CS2EventsInterface {
     private final List<Consumer<CS2GameEvent>> gameEventListeners = new CopyOnWriteArrayList<>();
@@ -59,15 +63,28 @@ public abstract class CS2EventsInterface {
     @SuppressWarnings("unchecked")
     protected void onNewGameEvent(CS2GameEvent e) {
         for (Consumer<CS2GameEvent> handler : gameEventListeners) {
-            handler.accept(e);
+            deliver(handler, e);
         }
 
         for (var entry : listeners.entrySet()) {
             if (entry.getKey().isInstance(e)) {
                 for (Consumer<? extends CS2GameEvent> handler : entry.getValue()) {
-                    ((Consumer<CS2GameEvent>) handler).accept(e);
+                    deliver((Consumer<CS2GameEvent>) handler, e);
                 }
             }
+        }
+    }
+
+    /**
+     * Calls a handler supplied by the application. An exception it throws goes to the thread's
+     * uncaught exception handler, so the remaining handlers still run and the failure stays visible.
+     */
+    static <T> void deliver(Consumer<T> handler, T value) {
+        try {
+            handler.accept(value);
+        } catch (RuntimeException e) {
+            Thread thread = Thread.currentThread();
+            thread.getUncaughtExceptionHandler().uncaughtException(thread, e);
         }
     }
 }
