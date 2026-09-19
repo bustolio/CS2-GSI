@@ -8,6 +8,8 @@ import java.util.LinkedHashMap;
  * Information about the authentication of this GameState.
  */
 public class Auth extends LinkedHashMap<String, String> {
+    private static final long serialVersionUID = 1L;
+
     public Auth() {
     }
 

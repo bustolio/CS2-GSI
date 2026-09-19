@@ -8,16 +8,37 @@ import com.cs2gsi.events.player.PlayerUpdated;
 import com.cs2gsi.nodes.Player;
 
 class AllPlayersHandler extends EventHandler<CS2GameEvent> {
+    // An observer gets the spectated player twice, in the player block and in allplayers.
+    // This is the steam id the player block already reported in the current payload.
+    private String reportedByPlayerBlock;
+    private boolean broadcastingOwnUpdate;
+
     AllPlayersHandler(EventDispatcher<CS2GameEvent> dispatcher) {
         super(dispatcher);
 
+        dispatcher.subscribe(PlayerUpdated.class, this::onPlayerUpdated);
         dispatcher.subscribe(AllPlayersUpdated.class, this::onAllPlayersUpdated);
+    }
+
+    // The player block is broadcast before allplayers, see GameStateHandler.
+    private void onPlayerUpdated(CS2GameEvent e) {
+        if (broadcastingOwnUpdate || !(e instanceof PlayerUpdated evt)) {
+            return;
+        }
+
+        // A different steam id means the spectated player changed. PlayerHandler skips that diff,
+        // so the allplayers entry still has to go out.
+        boolean samePlayer = evt.newValue.steamId.equals(evt.previousValue.steamId);
+        reportedByPlayerBlock = samePlayer ? evt.newValue.steamId : null;
     }
 
     private void onAllPlayersUpdated(CS2GameEvent e) {
         if (!(e instanceof AllPlayersUpdated evt)) {
             return;
         }
+
+        String alreadyReported = reportedByPlayerBlock;
+        reportedByPlayerBlock = null;
 
         for (var playerEntry : evt.newValue.entrySet()) {
             if (!evt.previousValue.containsKey(playerEntry.getKey())) {
@@ -28,8 +49,14 @@ class AllPlayersHandler extends EventHandler<CS2GameEvent> {
 
             Player previousPlayer = evt.previousValue.get(playerEntry.getKey());
 
-            if (!playerEntry.getValue().equals(previousPlayer)) {
-                dispatcher.broadcast(new PlayerUpdated(playerEntry.getValue(), previousPlayer, playerEntry.getKey()));
+            if (!playerEntry.getValue().equals(previousPlayer) && !playerEntry.getKey().equals(alreadyReported)) {
+                broadcastingOwnUpdate = true;
+
+                try {
+                    dispatcher.broadcast(new PlayerUpdated(playerEntry.getValue(), previousPlayer, playerEntry.getKey()));
+                } finally {
+                    broadcastingOwnUpdate = false;
+                }
             }
         }
 

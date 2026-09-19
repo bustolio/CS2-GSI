@@ -4,6 +4,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A class for handling Steam games.
@@ -87,7 +88,22 @@ final class SteamUtils {
                 steamPath = readWindowsRegistry("HKLM\\SOFTWARE\\Wow6432Node\\Valve\\Steam", "InstallPath");
             }
 
-            return steamPath;
+            if (steamPath != null && Files.isDirectory(Paths.get(steamPath))) {
+                return steamPath;
+            }
+
+            // ponytail: reg.exe answers in the console code page, so a path with non-ASCII characters
+            // arrives garbled. Fall back to the default locations, read the registry through JNA if that
+            // stops being enough.
+            for (String programFiles : new String[] {"ProgramFiles(x86)", "ProgramFiles"}) {
+                String folder = System.getenv(programFiles);
+
+                if (folder != null && Files.isDirectory(Paths.get(folder, "Steam"))) {
+                    return Paths.get(folder, "Steam").toString();
+                }
+            }
+
+            return null;
         }
 
         String userHome = System.getProperty("user.home", "");
@@ -119,12 +135,21 @@ final class SteamUtils {
 
     private static String readWindowsRegistry(String key, String valueName) {
         try {
-            Process process = new ProcessBuilder("reg", "query", key, "/v", valueName)
+            // The full path, because Windows looks for a bare "reg" in the working directory before System32.
+            String systemRoot = System.getenv().getOrDefault("SystemRoot", "C:\\Windows");
+            String regExe = Paths.get(systemRoot, "System32", "reg.exe").toString();
+
+            Process process = new ProcessBuilder(regExe, "query", key, "/v", valueName)
                     .redirectErrorStream(true)
                     .start();
 
+            // Waiting before reading is safe here, the few lines reg prints fit into the pipe buffer.
+            if (!process.waitFor(5, TimeUnit.SECONDS)) {
+                process.destroyForcibly();
+                return null;
+            }
+
             String output = new String(process.getInputStream().readAllBytes(), Charset.defaultCharset());
-            process.waitFor();
 
             for (String line : output.split("\\R")) {
                 line = line.trim();

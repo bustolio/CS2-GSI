@@ -61,9 +61,6 @@ class MapHandler extends EventHandler<CS2GameEvent> {
             dispatcher.broadcast(new TeamStatisticsUpdated(evt.newValue.tStatistics, evt.previousValue.tStatistics, PlayerTeam.T));
         }
 
-        boolean isLastRound = ((evt.newValue.round + 1) == maxRounds) || ((evt.newValue.round + 1) / (float) maxRounds) == 0.5f; // Next round is half
-        boolean isFirstRound = (evt.newValue.round == 0) || (evt.newValue.round / (float) maxRounds) == 0.5f; // Is first round or half round
-
         if (evt.newValue.round != evt.previousValue.round) {
             dispatcher.broadcast(new RoundChanged(evt.newValue.round, evt.previousValue.round));
 
@@ -79,10 +76,13 @@ class MapHandler extends EventHandler<CS2GameEvent> {
                         default -> PlayerTeam.Undefined;
                     };
 
-                    dispatcher.broadcast(new RoundConcluded(evt.previousValue.round, roundConclusion, winningTeam, isFirstRound, isLastRound));
+                    // The flags describe the round that ended, not the one that starts.
+                    dispatcher.broadcast(new RoundConcluded(evt.previousValue.round, roundConclusion, winningTeam,
+                            isFirstRound(evt.previousValue.round), isLastRound(evt.previousValue.round)));
                 }
 
-                dispatcher.broadcast(new RoundStarted(evt.newValue.round, isFirstRound, isLastRound));
+                dispatcher.broadcast(new RoundStarted(evt.newValue.round,
+                        isFirstRound(evt.newValue.round), isLastRound(evt.newValue.round)));
             }
         }
 
@@ -101,6 +101,16 @@ class MapHandler extends EventHandler<CS2GameEvent> {
         if (evt.newValue.souvenirsTotal != evt.previousValue.souvenirsTotal) {
             dispatcher.broadcast(new SouvenirsTotalChanged(evt.newValue.souvenirsTotal, evt.previousValue.souvenirsTotal));
         }
+    }
+
+    // First round of the match or of the second half.
+    private boolean isFirstRound(int round) {
+        return round == 0 || round == maxRounds / 2;
+    }
+
+    // Last round of the match or of the first half.
+    private boolean isLastRound(int round) {
+        return round + 1 == maxRounds || round + 1 == maxRounds / 2;
     }
 
     private void onTeamStatisticsUpdated(CS2GameEvent e) {

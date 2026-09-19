@@ -13,12 +13,14 @@ import com.cs2gsi.events.bomb.BombStateUpdated;
 import com.cs2gsi.events.bomb.BombUpdated;
 import com.cs2gsi.events.CS2GameEvent;
 import com.cs2gsi.events.player.PlayerUpdated;
+import com.cs2gsi.nodes.BombState;
 import com.cs2gsi.nodes.Player;
 
 import java.util.HashMap;
 
 class BombHandler extends EventHandler<CS2GameEvent> {
     private final HashMap<String, Player> playerCache = new HashMap<>();
+    private BombState lastBombState = BombState.Undefined;
 
     BombHandler(EventDispatcher<CS2GameEvent> dispatcher) {
         super(dispatcher);
@@ -26,6 +28,22 @@ class BombHandler extends EventHandler<CS2GameEvent> {
         dispatcher.subscribe(PlayerUpdated.class, this::onPlayerUpdated);
         dispatcher.subscribe(BombUpdated.class, this::onBombUpdated);
         dispatcher.subscribe(BombStateUpdated.class, this::onBombStateUpdated);
+        dispatcher.registerPreProcessor(BombStateUpdated.class, this::dropRepeatedBombState);
+    }
+
+    // The round block and the bomb block both report the bomb state. With both enabled in the
+    // configuration the same change arrives twice, the second one is dropped for every subscriber.
+    private CS2GameEvent dropRepeatedBombState(CS2GameEvent e) {
+        if (!(e instanceof BombStateUpdated evt)) {
+            return e;
+        }
+
+        if (evt.newValue == lastBombState) {
+            return null;
+        }
+
+        lastBombState = evt.newValue;
+        return e;
     }
 
     private void onPlayerUpdated(CS2GameEvent e) {
@@ -75,7 +93,12 @@ class BombHandler extends EventHandler<CS2GameEvent> {
 
         switch (evt.newValue) {
             case Dropped -> dispatcher.broadcast(new BombDropped());
-            case Planted -> dispatcher.broadcast(new BombPlanted());
+            case Planted -> {
+                // An aborted defuse goes from Defusing back to Planted, that is not a new plant.
+                if (evt.previousValue != BombState.Defusing) {
+                    dispatcher.broadcast(new BombPlanted());
+                }
+            }
             case Defused -> dispatcher.broadcast(new BombDefused());
             case Exploded -> dispatcher.broadcast(new BombExploded());
             default -> {

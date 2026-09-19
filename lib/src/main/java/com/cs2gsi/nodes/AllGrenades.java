@@ -8,6 +8,8 @@ import java.util.LinkedHashMap;
  * Information about grenades. Key is grenade ID, Value is grenade information.
  */
 public class AllGrenades extends LinkedHashMap<String, Grenade> {
+    private static final long serialVersionUID = 1L;
+
     public AllGrenades() {
     }
 

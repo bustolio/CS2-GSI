@@ -54,9 +54,9 @@ public class Player extends Node {
     public final PlayerState state;
 
     /**
-     * The player's weapons.
+     * The player's weapons. The list is unmodifiable, the library compares it against the next game state.
      */
-    public final List<Weapon> weapons = new ArrayList<>();
+    public final List<Weapon> weapons;
 
     /**
      * The player's match statistics.
@@ -100,8 +100,10 @@ public class Player extends Node {
         activity = getEnum(PlayerActivity.class, "activity");
         state = new PlayerState(getJObject("state"));
 
+        List<Weapon> parsedWeapons = new ArrayList<>();
         getMatchingObjects(getJObject("weapons"), WEAPON_PATTERN, (matcher, obj) ->
-                weapons.add(new Weapon(obj, Integer.parseInt(matcher.group(1)))));
+                parsedWeapons.add(new Weapon(obj, Integer.parseInt(matcher.group(1)))));
+        weapons = List.copyOf(parsedWeapons);
 
         matchStats = new MatchStats(getJObject("match_stats"));
         spectationTarget = getString("spectarget");

@@ -3,6 +3,7 @@ package com.cs2gsi.nodes;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -205,13 +206,13 @@ public class Node {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
+        if (this == obj) {
+            return true;
         }
 
         return obj instanceof Node other
-                && parsedData != null
-                && parsedData.equals(other.parsedData)
+                && getClass() == other.getClass()
+                && Objects.equals(parsedData, other.parsedData)
                 && successfullyRetrievedAnyValue == other.successfullyRetrievedAnyValue;
     }
 

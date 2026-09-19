@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
  * Information about all players. Key is the Steam ID, Value is the player data.
  */
 public class AllPlayers extends LinkedHashMap<String, Player> {
+    private static final long serialVersionUID = 1L;
+
     private static final Pattern PLAYER_STEAMID_PATTERN = Pattern.compile("(\\d+)");
 
     public AllPlayers() {

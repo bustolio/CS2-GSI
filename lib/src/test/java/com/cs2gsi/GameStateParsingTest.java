@@ -20,6 +20,8 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GameStateParsingTest {
@@ -40,6 +42,22 @@ class GameStateParsingTest {
     @Test
     void emptyGameStateIsInvalid() {
         assertFalse(new GameState().isValid());
+    }
+
+    @Test
+    void equalsHoldsForEmptyAndForReparsedGameStates() throws IOException {
+        GameState empty = new GameState();
+
+        assertEquals(empty, empty);
+        assertEquals(new GameState(), new GameState());
+        assertEquals(gameState, new GameState(loadSampleGameState()));
+        assertNotEquals(empty, gameState);
+    }
+
+    @Test
+    void weaponsCannotBeModifiedByAHandler() {
+        assertFalse(gameState.player.weapons.isEmpty());
+        assertThrows(UnsupportedOperationException.class, () -> gameState.player.weapons.clear());
     }
 
     @Test
