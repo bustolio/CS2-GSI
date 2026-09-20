@@ -102,7 +102,8 @@ public final class CS2GSIFile {
             ACF providerConfiguration = new ACF();
 
             // Providers and the version this integration would like to use.
-            // As of 6/23/2025 all providers only offer version 1.
+            // Checked against client.dll of build 25218825 (2026-09-10). The game knows these
+            // 18 providers and offers each of them only as version 1.
 
             providerConfiguration.getItems().put("provider", "1");
             providerConfiguration.getItems().put("tournamentdraft", "1");
@@ -131,10 +132,13 @@ public final class CS2GSIFile {
             gsiConfiguration.getItems().put("heartbeat", "10.0"); // Default is 60.0, Min value 0.0
 
             // Precision value adjustment for time and vector values.
+            // The game reads them from an "output" block and ignores a flat "output/precision_time" key.
 
-            gsiConfiguration.getItems().put("output/precision_time", "1"); // Default is 1
-            gsiConfiguration.getItems().put("output/precision_position", "2"); // Default is 2
-            gsiConfiguration.getItems().put("output/precision_vector", "2"); // Default is 2
+            ACF output = new ACF();
+            output.getItems().put("precision_time", "1"); // Default is 1
+            output.getItems().put("precision_position", "2"); // Default is 2
+            output.getItems().put("precision_vector", "2"); // Default is 2
+            gsiConfiguration.getChildren().put("output", output);
 
             if (authToken != null && !authToken.isEmpty()) {
                 ACF auth = new ACF();

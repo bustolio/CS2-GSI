@@ -113,6 +113,18 @@ public class GameState extends Node {
     }
 
     /**
+     * Whether {@link #player} is the account that runs the game.<br>
+     * The game fills the player node with whoever is on screen, so while spectating it describes
+     * someone else. The provider node always names the local account.
+     *
+     * @return True only if both nodes carry the same Steam ID. False while spectating, and false if
+     *         either ID is missing, because then nothing shows that the player node is the local one.
+     */
+    public boolean isLocalPlayer() {
+        return !provider.steamId.isEmpty() && provider.steamId.equals(player.steamId);
+    }
+
+    /**
      * A previous GameState.
      */
     public synchronized GameState getPreviously() {

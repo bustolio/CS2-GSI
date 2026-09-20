@@ -11,7 +11,11 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.InstantSource;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,6 +54,8 @@ public class GameStateListener extends CS2EventsInterface implements AutoCloseab
     private volatile boolean running = false;
     private volatile int boundPort;
     private volatile String authToken;
+    private volatile Instant lastGameStateTime;
+    private final InstantSource clock;
     private final int port;
     private final String uri;
     private final String host;
@@ -86,9 +92,21 @@ public class GameStateListener extends CS2EventsInterface implements AutoCloseab
      * @param port The port to listen on.
      */
     public GameStateListener(int port) {
+        this(port, Clock.systemUTC());
+    }
+
+    /**
+     * A GameStateListener that listens for connections on http://localhost:{port}/
+     * and reads the time for {@link #getLastGameStateTime()} from the given clock.
+     *
+     * @param port  The port to listen on.
+     * @param clock The source of the current time, e.g. a fixed one in a test.
+     */
+    public GameStateListener(int port, InstantSource clock) {
         this.port = port;
         this.host = "localhost";
         this.uri = "http://localhost:" + port + "/";
+        this.clock = clock;
 
         dispatcher.onGameEvent(this::onNewGameEvent);
     }
@@ -99,6 +117,17 @@ public class GameStateListener extends CS2EventsInterface implements AutoCloseab
      * @param uri The URI to listen to.
      */
     public GameStateListener(String uri) {
+        this(uri, Clock.systemUTC());
+    }
+
+    /**
+     * A GameStateListener that listens for connections to the specified URI
+     * and reads the time for {@link #getLastGameStateTime()} from the given clock.
+     *
+     * @param uri   The URI to listen to.
+     * @param clock The source of the current time, e.g. a fixed one in a test.
+     */
+    public GameStateListener(String uri, InstantSource clock) {
         if (!uri.endsWith("/")) {
             uri += "/";
         }
@@ -112,6 +141,7 @@ public class GameStateListener extends CS2EventsInterface implements AutoCloseab
         this.host = matcher.group(1);
         this.port = Integer.parseInt(matcher.group(2));
         this.uri = uri;
+        this.clock = clock;
 
         dispatcher.onGameEvent(this::onNewGameEvent);
     }
@@ -132,6 +162,18 @@ public class GameStateListener extends CS2EventsInterface implements AutoCloseab
         synchronized (gamestateLock) {
             return currentGameState;
         }
+    }
+
+    /**
+     * When the game last sent a game state that the listener accepted.<br>
+     * A heartbeat that repeats the previous state counts as well, although it raises no event. With
+     * the generated configuration file the game sends at least every 10 seconds, so a much older
+     * time means the game stopped sending. Refused and malformed requests do not count.
+     *
+     * @return The time of the last accepted game state, empty before the first one.
+     */
+    public Optional<Instant> getLastGameStateTime() {
+        return Optional.ofNullable(lastGameStateTime);
     }
 
     /**
@@ -297,10 +339,17 @@ public class GameStateListener extends CS2EventsInterface implements AutoCloseab
             }
         }
 
+        boolean accepted = rejection == 0 && gameState != null;
+
+        if (accepted) {
+            // Here and not in setCurrentGameState, which drops a heartbeat that repeats the last state.
+            lastGameStateTime = clock.instant();
+        }
+
         exchange.sendResponseHeaders(rejection == 0 ? 200 : rejection, -1);
         exchange.close();
 
-        if (rejection == 0 && gameState != null) {
+        if (accepted) {
             setCurrentGameState(gameState);
         }
     }

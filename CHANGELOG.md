@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-21
+
+### Added
+
+- `Weapon.info`, a `WeaponInfo` enum entry found by the payload name. It carries the payload name,
+  a display name (`AK-47`, `USP-S`) and a `FireMode` that says whether the primary fire keeps
+  going on a held attack button (`Automatic`), needs a click per shot (`SemiAutomatic`,
+  `BoltAction`) or is the R8 special case (`Revolver`). Every knife skin maps to
+  `WeaponInfo.Knife`. Unknown names and the empty weapon give `WeaponInfo.Undefined`, nothing
+  throws.
+- `WeaponInfo.slot` and `WeaponInfo.directSlot`, the numbers of the game's `slotN` commands.
+  `slot` selects the group (1 primary, 2 pistol, 3 knife and Zeus, 4 grenades, 5 C4),
+  `directSlot` selects exactly that weapon where the game has such a command (6 to 10 for the
+  grenades, 11 for the Zeus) and is 0 otherwise.
+- `GameState.isLocalPlayer()`. True only if the provider node and the player node carry the same
+  Steam ID, so it is false while spectating and false if either ID is missing.
+- `GameStateListener.getLastGameStateTime()`, the time of the last accepted game state, empty
+  before the first one. A heartbeat that repeats the previous state counts, so an application can
+  tell a quiet freeze time from a game that stopped sending. Two new constructors take a
+  `java.time.InstantSource`, so a test can set the time.
+
+### Changed
+
+- **Breaking:** `Weapon.slot` is now `Weapon.index`. The field holds the number from the
+  `weapon_N` key, which is the position in the payload and not the slot a `slotN` command selects.
+  Code that reads `weapon.slot` has to read `weapon.index`, or `weapon.info.slot` if it wanted the
+  real slot. `Weapon.toString()` prints `Index:` where it printed `Slot:`.
+
+### Fixed
+
+- The precision settings go into an `output` block of the configuration file. The game ignores
+  the flat `output/precision_time`, `output/precision_position` and `output/precision_vector` keys
+  that 1.1.0 and earlier wrote. Measured with CS2 build 25218825: a flat key asking for 4 decimals
+  left positions at 2, the block delivered 4. The values stay at the game's defaults, so game
+  states look the same, but `installFile` reports `UPDATED` once for every existing file.
+- `Weapon.type` is `SubmachineGun` and `MachineGun` for SMGs and machine guns. The game writes
+  these two types as `"Submachine Gun"` and `"Machine Gun"`, and `Node.toEnum` compared them
+  against the constant names with the space still in, so both came out as `Undefined`.
+
 ## [1.1.0] - 2026-09-20
 
 ### Added

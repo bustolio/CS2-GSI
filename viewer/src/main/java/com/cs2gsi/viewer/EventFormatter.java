@@ -100,13 +100,13 @@ final class EventFormatter {
 
         if (e instanceof PlayerWeaponAmmoClipChanged ammoClip) {
             return "player=" + ammoClip.player.name + " weapon=" + ammoClip.weapon.name
-                    + " slot=" + ammoClip.weapon.slot
+                    + " index=" + ammoClip.weapon.index
                     + "  " + ammoClip.previousValue + " -> " + ammoClip.newValue;
         }
 
         if (e instanceof PlayerWeaponAmmoReserveChanged ammoReserve) {
             return "player=" + ammoReserve.player.name + " weapon=" + ammoReserve.weapon.name
-                    + " slot=" + ammoReserve.weapon.slot
+                    + " index=" + ammoReserve.weapon.index
                     + "  " + ammoReserve.previousValue + " -> " + ammoReserve.newValue;
         }
 

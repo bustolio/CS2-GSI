@@ -27,13 +27,16 @@ public class Node {
     }
 
     /**
-     * Parses a string into the given enum type (case-insensitive).
+     * Parses a string into the given enum type (case-insensitive, spaces ignored).
      * Falls back to the enum's {@code Undefined} constant.
      */
     public static <E extends Enum<E>> E toEnum(Class<E> enumClass, String str) {
         if (str != null && !str.isBlank()) {
+            // The game writes some values with a space ("Submachine Gun", "Machine Gun").
+            String compact = str.replace(" ", "");
+
             for (E value : enumClass.getEnumConstants()) {
-                if (value.name().equalsIgnoreCase(str.trim())) {
+                if (value.name().equalsIgnoreCase(compact)) {
                     return value;
                 }
             }

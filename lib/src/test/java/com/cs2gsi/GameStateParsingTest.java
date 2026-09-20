@@ -1,12 +1,17 @@
 package com.cs2gsi;
 
 import com.cs2gsi.nodes.BombState;
+import com.cs2gsi.nodes.FireMode;
 import com.cs2gsi.nodes.GameMode;
 import com.cs2gsi.nodes.GrenadeType;
+import com.cs2gsi.nodes.Node;
 import com.cs2gsi.nodes.Phase;
 import com.cs2gsi.nodes.PlayerActivity;
 import com.cs2gsi.nodes.PlayerTeam;
 import com.cs2gsi.nodes.RoundConclusion;
+import com.cs2gsi.nodes.Weapon;
+import com.cs2gsi.nodes.WeaponInfo;
+import com.cs2gsi.nodes.WeaponType;
 import com.cs2gsi.nodes.helpers.Vector3D;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -113,6 +118,77 @@ class GameStateParsingTest {
         assertEquals("weapon_ak47", gameState.player.getActiveWeapon().name);
         assertEquals(12, gameState.player.matchStats.kills);
         assertEquals(new Vector3D(100.50f, -200.25f, 64.00f), gameState.player.position);
+    }
+
+    @Test
+    void parsesWeaponTypesTheGameWritesWithASpace() {
+        assertEquals(WeaponType.SubmachineGun, Node.toEnum(WeaponType.class, "Submachine Gun"));
+        assertEquals(WeaponType.MachineGun, Node.toEnum(WeaponType.class, "Machine Gun"));
+        assertEquals(WeaponType.SniperRifle, Node.toEnum(WeaponType.class, "SniperRifle"));
+    }
+
+    @Test
+    void findsWeaponInfoByPayloadName() {
+        assertEquals(WeaponInfo.Ak47, gameState.player.getActiveWeapon().info);
+        assertEquals("AK-47", WeaponInfo.Ak47.displayName);
+        assertEquals(FireMode.Automatic, WeaponInfo.Ak47.fireMode);
+        assertEquals(WeaponInfo.UspS, WeaponInfo.fromName("weapon_usp_silencer"));
+        assertEquals(FireMode.BoltAction, WeaponInfo.fromName("weapon_awp").fireMode);
+        assertEquals(FireMode.Revolver, WeaponInfo.fromName("weapon_revolver").fireMode);
+    }
+
+    @Test
+    void everyKnifeSkinIsAKnife() {
+        assertEquals(WeaponInfo.Knife, WeaponInfo.fromName("weapon_knife"));
+        assertEquals(WeaponInfo.Knife, WeaponInfo.fromName("weapon_knife_t"));
+        assertEquals(WeaponInfo.Knife, WeaponInfo.fromName("weapon_knife_karambit"));
+        assertEquals(WeaponInfo.Knife, WeaponInfo.fromName("weapon_bayonet"));
+    }
+
+    @Test
+    void unknownAndMissingWeaponNamesAreUndefined() {
+        assertEquals(WeaponInfo.Undefined, WeaponInfo.fromName("weapon_not_released_yet"));
+        assertEquals(WeaponInfo.Undefined, WeaponInfo.fromName(""));
+        assertEquals(WeaponInfo.Undefined, WeaponInfo.fromName(null));
+        assertEquals(WeaponInfo.Undefined, new Weapon().info);
+        assertEquals(FireMode.Undefined, new Weapon().info.fireMode);
+    }
+
+    @Test
+    void weaponInfoCarriesTheSlotCommandsOfTheGame() {
+        assertEquals(1, WeaponInfo.Ak47.slot);
+        assertEquals(2, WeaponInfo.Glock.slot);
+        assertEquals(3, WeaponInfo.Knife.slot);
+        assertEquals(0, WeaponInfo.Knife.directSlot);
+        assertEquals(3, WeaponInfo.Zeus.slot);
+        assertEquals(11, WeaponInfo.Zeus.directSlot);
+        assertEquals(4, WeaponInfo.SmokeGrenade.slot);
+        assertEquals(8, WeaponInfo.SmokeGrenade.directSlot);
+        assertEquals(WeaponInfo.Molotov.directSlot, WeaponInfo.IncendiaryGrenade.directSlot);
+        assertEquals(5, WeaponInfo.C4.slot);
+        assertEquals(0, WeaponInfo.Undefined.slot);
+        assertEquals(0, WeaponInfo.Undefined.directSlot);
+
+        for (WeaponInfo info : WeaponInfo.values()) {
+            if (info != WeaponInfo.Undefined) {
+                assertTrue(info.slot >= 1 && info.slot <= 5, info + " has slot " + info.slot);
+            }
+        }
+    }
+
+    @Test
+    void playerIsLocalOnlyWhenTheProviderNamesTheSameAccount() throws IOException {
+        assertTrue(gameState.isLocalPlayer());
+
+        JsonObject spectating = loadSampleGameState();
+        spectating.getAsJsonObject("player").addProperty("steamid", "76561198000000002");
+        assertFalse(new GameState(spectating).isLocalPlayer());
+
+        JsonObject withoutProvider = loadSampleGameState();
+        withoutProvider.remove("provider");
+        assertFalse(new GameState(withoutProvider).isLocalPlayer());
+
+        assertFalse(new GameState().isLocalPlayer());
     }
 
     @Test

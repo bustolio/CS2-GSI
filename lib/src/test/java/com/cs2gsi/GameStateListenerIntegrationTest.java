@@ -11,6 +11,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Instant;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -107,6 +109,28 @@ class GameStateListenerIntegrationTest {
             assertEquals(200, post(listener, GameStateParsingTest.loadSampleGameState().toString()));
             assertTrue(stateLatch.await(5, TimeUnit.SECONDS),
                     "The listener should keep processing valid payloads after a malformed one");
+        }
+    }
+
+    @Test
+    void remembersWhenTheLastGameStateArrivedEvenIfNothingChanged() throws Exception {
+        String payload = GameStateParsingTest.loadSampleGameState().toString();
+        AtomicReference<Instant> now = new AtomicReference<>(Instant.parse("2026-09-20T12:00:00Z"));
+
+        try (GameStateListener listener = new GameStateListener(ANY_PORT, now::get)) {
+            assertTrue(listener.start());
+            assertEquals(Optional.empty(), listener.getLastGameStateTime());
+
+            assertEquals(200, post(listener, "this is not json"));
+            assertEquals(Optional.empty(), listener.getLastGameStateTime(), "a malformed payload is not a game state");
+
+            assertEquals(200, post(listener, payload));
+            assertEquals(Optional.of(Instant.parse("2026-09-20T12:00:00Z")), listener.getLastGameStateTime());
+
+            // A heartbeat repeats the last state, it still proves that the game is sending.
+            now.set(Instant.parse("2026-09-20T12:00:10Z"));
+            assertEquals(200, post(listener, payload));
+            assertEquals(Optional.of(Instant.parse("2026-09-20T12:00:10Z")), listener.getLastGameStateTime());
         }
     }
 

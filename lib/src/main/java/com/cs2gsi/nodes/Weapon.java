@@ -7,15 +7,22 @@ import com.google.gson.JsonObject;
  */
 public class Weapon extends Node {
     /**
-     * The inventory slot index, taken from the {@code weapon_N} key
-     * (e.g. 0 for {@code weapon_0}). -1 when unknown.
+     * The position of the weapon in the payload, taken from the {@code weapon_N} key
+     * (e.g. 0 for {@code weapon_0}). -1 when unknown.<br>
+     * This is not the slot a {@code slotN} command selects, see {@link WeaponInfo#slot}.
      */
-    public final int slot;
+    public final int index;
 
     /**
      * The weapon name.
      */
     public final String name;
+
+    /**
+     * What the library knows about the weapon behind {@link #name}.
+     * {@code Undefined} for a name it does not know and for an empty weapon.
+     */
+    public final WeaponInfo info;
 
     /**
      * The weapon skin name.
@@ -55,11 +62,12 @@ public class Weapon extends Node {
         this(parsedData, -1);
     }
 
-    public Weapon(JsonObject parsedData, int slot) {
+    public Weapon(JsonObject parsedData, int index) {
         super(parsedData);
 
-        this.slot = slot;
+        this.index = index;
         name = getString("name");
+        info = WeaponInfo.fromName(name);
         paintKit = getString("paintkit");
         type = getEnum(WeaponType.class, "type");
         ammoClip = getInt("ammo_clip");
@@ -71,7 +79,7 @@ public class Weapon extends Node {
     @Override
     public String toString() {
         return "["
-                + "Slot: " + slot + ", "
+                + "Index: " + index + ", "
                 + "Name: " + name + ", "
                 + "PaintKit: " + paintKit + ", "
                 + "Type: " + type + ", "
@@ -89,7 +97,7 @@ public class Weapon extends Node {
         }
 
         return obj instanceof Weapon other
-                && slot == other.slot
+                && index == other.index
                 && name.equals(other.name)
                 && paintKit.equals(other.paintKit)
                 && type == other.type
@@ -102,7 +110,7 @@ public class Weapon extends Node {
     @Override
     public int hashCode() {
         int hashCode = 896140043;
-        hashCode = hashCode * -659784304 + Integer.hashCode(slot);
+        hashCode = hashCode * -659784304 + Integer.hashCode(index);
         hashCode = hashCode * -659784304 + name.hashCode();
         hashCode = hashCode * -659784304 + paintKit.hashCode();
         hashCode = hashCode * -659784304 + type.hashCode();

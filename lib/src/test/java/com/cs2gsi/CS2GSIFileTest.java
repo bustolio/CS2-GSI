@@ -101,13 +101,23 @@ class CS2GSIFileTest {
         assertEquals("0.1", configuration.getItems().get("throttle"));
         assertEquals("10.0", configuration.getItems().get("heartbeat"));
 
+        // The game ignores a flat "output/precision_time" key, it wants a block.
+        ACF output = configuration.getChildren().get("output");
+        assertNotNull(output);
+        assertEquals("1", output.getItems().get("precision_time"));
+        assertEquals("2", output.getItems().get("precision_position"));
+        assertEquals("2", output.getItems().get("precision_vector"));
+        assertNull(configuration.getItems().get("output/precision_time"));
+
         ACF data = configuration.getChildren().get("data");
         assertNotNull(data);
-        assertEquals("1", data.getItems().get("provider"));
-        assertEquals("1", data.getItems().get("map"));
-        assertEquals("1", data.getItems().get("round"));
-        assertEquals("1", data.getItems().get("allgrenades"));
-        assertEquals("1", data.getItems().get("bomb"));
+        for (String provider : new String[] {"provider", "tournamentdraft", "map", "map_round_wins", "round",
+                "player_id", "player_state", "player_weapons", "player_match_stats", "player_position",
+                "phase_countdowns", "allplayers_id", "allplayers_state", "allplayers_match_stats",
+                "allplayers_weapons", "allplayers_position", "allgrenades", "bomb"}) {
+            assertEquals("1", data.getItems().get(provider), provider);
+        }
+        assertEquals(18, data.getItems().size());
     }
 
     @Test

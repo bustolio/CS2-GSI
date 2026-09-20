@@ -11,12 +11,14 @@ subscribable game events to your application.
 
 ## Features
 
-- **Simple listener** – start an HTTP server with a single class and subscribe to what you need.
-- **Automatic config generation** – generates the required `gamestate_integration_*.cfg` file for you.
-- **Typed game state** – raw GSI JSON is parsed into a rich `GameState` model.
-- **Granular events** – dozens of event types such as `PlayerGotKill`, `PlayerDied`, `KillFeed`,
+- **Simple listener.** Start an HTTP server with a single class and subscribe to what you need.
+- **Automatic config generation.** The library writes the `gamestate_integration_*.cfg` file for you.
+- **Typed game state.** The library parses the raw GSI JSON into a `GameState` model.
+- **Granular events.** Dozens of event types such as `PlayerGotKill`, `PlayerDied`, `KillFeed`,
   `BombStateUpdated`, `RoundStarted`, `RoundConcluded`, grenade events, and more.
-- **JavaFX event viewer** – an included GUI to inspect events live.
+- **Weapon data.** Every weapon carries its display name, fire mode and the `slotN` command that
+  selects it, so your application needs no weapon table of its own.
+- **JavaFX event viewer.** An included GUI to inspect events live.
 
 ## Requirements
 
@@ -67,7 +69,7 @@ The library is on Maven Central, so no extra repository is needed. Maven:
 <dependency>
     <groupId>de.witzurke</groupId>
     <artifactId>cs2gsi</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
@@ -75,11 +77,14 @@ Gradle:
 
 ```groovy
 dependencies {
-    implementation 'de.witzurke:cs2gsi:1.1.0'
+    implementation 'de.witzurke:cs2gsi:1.2.0'
 }
 ```
 
 The Java package is `com.cs2gsi`. The JAR declares the module name `com.cs2gsi` for the module path.
+
+Coming from 1.1.0: `Weapon.slot` is now `Weapon.index`. Everything else in 1.2.0 is an addition, the
+[changelog](CHANGELOG.md) has the list.
 
 ### Via JitPack
 
@@ -97,7 +102,7 @@ repository and the `cs2gsi` dependency to your `pom.xml`:
 <dependency>
     <groupId>com.github.bustolio.CS2-GSI</groupId>
     <artifactId>cs2gsi</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
@@ -113,7 +118,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.bustolio.CS2-GSI:cs2gsi:1.1.0'
+    implementation 'com.github.bustolio.CS2-GSI:cs2gsi:1.2.0'
 }
 ```
 
@@ -164,11 +169,75 @@ public class Main {
 See [`example/src/main/java/com/cs2gsi/example/Program.java`](example/src/main/java/com/cs2gsi/example/Program.java)
 for a fuller demonstration.
 
+### Weapon data
+
+The payload names a weapon `weapon_usp_silencer` and says nothing about how it fires.
+`Weapon.info` looks the name up in the `WeaponInfo` enum:
+
+```java
+Weapon weapon = gsl.getCurrentGameState().player.getActiveWeapon();
+
+System.out.println(weapon.info.displayName);   // "USP-S"
+System.out.println(weapon.info.fireMode);      // SemiAutomatic
+System.out.println("slot" + weapon.info.slot); // "slot2", the command that selects the pistol
+```
+
+- `fireMode` is `Automatic` if the weapon keeps firing on a held attack button, `SemiAutomatic` or
+  `BoltAction` if it needs a click per shot, and `Revolver` for the R8, whose primary fire needs a
+  held button. Grenades and the C4 have `Undefined`.
+- `slot` is the group: 1 primary, 2 pistol, 3 knife and Zeus, 4 grenades, 5 C4. `directSlot` is
+  the command for exactly that weapon where the game has one (6 HE, 7 flashbang, 8 smoke, 9 decoy,
+  10 molotov and incendiary, 11 Zeus) and 0 otherwise. A player can leave the direct commands
+  unbound, so fall back to `slot`.
+- Every knife skin (`weapon_knife_karambit`, `weapon_bayonet`, ...) maps to `WeaponInfo.Knife`.
+- A name the list does not know gives `WeaponInfo.Undefined` with an empty `displayName`, and so
+  does the empty weapon that `getActiveWeapon()` returns when nothing is active. Nothing throws,
+  so a weapon Valve adds later does not break your application. Fall back to `weapon.name` and
+  `weapon.type` in that case.
+
+`Weapon.index` is something else. It is the number from the `weapon_N` key, the position in the
+payload.
+
+### Local player or spectated player
+
+The game fills `state.player` with whoever is on screen. While you spectate, that is another
+player. The provider node always names the account that runs the game, and `isLocalPlayer()`
+compares the two:
+
+```java
+gsl.onNewGameState(state -> {
+    if (state.isLocalPlayer()) {
+        // state.player is you
+    }
+});
+```
+
+The method returns `true` only if both Steam IDs are present and equal. With a missing ID it
+returns `false`, because nothing shows that the player node is the local one. The generated
+configuration file enables both nodes.
+
+### Is the game still sending?
+
+`getCurrentGameState()` keeps returning the last state when the game stops sending, for example
+after a game update broke the integration or the cfg file was deleted. `getLastGameStateTime()`
+tells the two apart:
+
+```java
+boolean gameIsSending = gsl.getLastGameStateTime()
+        .map(time -> Duration.between(time, Instant.now()).getSeconds() < 25)
+        .orElse(false);
+```
+
+The generated configuration file sets a heartbeat of 10 seconds, so the game sends at least that
+often while it runs. A heartbeat that repeats the previous state raises no event but still
+counts here. For tests, `new GameStateListener(port, clock)` takes a `java.time.InstantSource`
+that supplies the time.
+
 ### Running the example
 
 ```bash
 mvn -pl example -am clean package
-java -jar example/target/cs2gsi-example-1.1.0.jar
+java -jar example/target/cs2gsi-example-1.2.0.jar
 ```
 
 > `start()` returns `false` when it cannot bind the address. The usual cause is another program
