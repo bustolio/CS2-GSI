@@ -18,7 +18,6 @@ subscribable game events to your application.
   `BombStateUpdated`, `RoundStarted`, `RoundConcluded`, grenade events, and more.
 - **Weapon data.** Every weapon carries its display name, fire mode and the `slotN` command that
   selects it, so your application needs no weapon table of its own.
-- **JavaFX event viewer.** An included GUI to inspect events live.
 
 ## Requirements
 
@@ -34,7 +33,6 @@ This is a multi-module Maven project:
 | --------- | ---------------- | -------------------------------------------------------------------- |
 | `lib`     | `cs2gsi`         | The core library that listens for and parses GSI events.             |
 | `example` | `cs2gsi-example` | A runnable console program demonstrating common event subscriptions. |
-| `viewer`  | `cs2gsi-viewer`  | A JavaFX UI for live-viewing selected GSI events.                    |
 
 ### Package overview (`lib`)
 
@@ -69,7 +67,7 @@ The library is on Maven Central, so no extra repository is needed. Maven:
 <dependency>
     <groupId>de.witzurke</groupId>
     <artifactId>cs2gsi</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 
@@ -77,14 +75,14 @@ Gradle:
 
 ```groovy
 dependencies {
-    implementation 'de.witzurke:cs2gsi:1.2.0'
+    implementation 'de.witzurke:cs2gsi:1.3.0'
 }
 ```
 
 The Java package is `com.cs2gsi`. The JAR declares the module name `com.cs2gsi` for the module path.
 
-Coming from 1.1.0: `Weapon.slot` is now `Weapon.index`. Everything else in 1.2.0 is an addition, the
-[changelog](CHANGELOG.md) has the list.
+Coming from 1.1.0: `Weapon.slot` is now `Weapon.index` since 1.2.0. Everything else since then is an
+addition, the [changelog](CHANGELOG.md) has the list.
 
 ### Via JitPack
 
@@ -102,7 +100,7 @@ repository and the `cs2gsi` dependency to your `pom.xml`:
 <dependency>
     <groupId>com.github.bustolio.CS2-GSI</groupId>
     <artifactId>cs2gsi</artifactId>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
 </dependency>
 ```
 
@@ -118,7 +116,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.bustolio.CS2-GSI:cs2gsi:1.2.0'
+    implementation 'com.github.bustolio.CS2-GSI:cs2gsi:1.3.0'
 }
 ```
 
@@ -185,6 +183,9 @@ System.out.println("slot" + weapon.info.slot); // "slot2", the command that sele
 - `fireMode` is `Automatic` if the weapon keeps firing on a held attack button, `SemiAutomatic` or
   `BoltAction` if it needs a click per shot, and `Revolver` for the R8, whose primary fire needs a
   held button. Grenades and the C4 have `Undefined`.
+- `hasSecondaryFire` is true if `+attack2` does something: knife stab, burst toggle (Glock-18,
+  FAMAS), silencer (USP-S, M4A1-S), R8 fanning, scope (AUG, SG 553, sniper rifles) and the short
+  grenade throw.
 - `slot` is the group: 1 primary, 2 pistol, 3 knife and Zeus, 4 grenades, 5 C4. `directSlot` is
   the command for exactly that weapon where the game has one (6 HE, 7 flashbang, 8 smoke, 9 decoy,
   10 molotov and incendiary, 11 Zeus) and 0 otherwise. A player can leave the direct commands
@@ -197,6 +198,25 @@ System.out.println("slot" + weapon.info.slot); // "slot2", the command that sele
 
 `Weapon.index` is something else. It is the number from the `weapon_N` key, the position in the
 payload.
+
+### Game mode data
+
+In a normal match the game sends no `phase_ends_in`, so an application that shows the round or
+bomb time has to count itself. `map.mode` carries the default times:
+
+```java
+GameMode mode = gsl.getCurrentGameState().map.mode;
+
+System.out.println(mode.displayName);  // "Wingman" for Scrimcomp2v2
+System.out.println(mode.roundSeconds); // 90
+System.out.println(mode.bombSeconds);  // 40
+```
+
+The values come from the game's `cfg/gamemode_*.cfg` files: 115 seconds in Competitive, 90 in
+Wingman, 135 in Casual, and 40 seconds for the bomb in all three. `roundSeconds` is the time on
+bomb defusal maps, Casual hostage maps run 120. Both fields are 0 for Deathmatch and for modes
+without a fixed value, so don't start a timer then. A server with its own `mp_roundtime_defuse`
+or `mp_c4timer` differs, and the payload doesn't show that.
 
 ### Local player or spectated player
 
@@ -237,21 +257,11 @@ that supplies the time.
 
 ```bash
 mvn -pl example -am clean package
-java -jar example/target/cs2gsi-example-1.2.0.jar
+java -jar example/target/cs2gsi-example-1.3.0.jar
 ```
 
 > `start()` returns `false` when it cannot bind the address. The usual cause is another program
 > on the same port. The listener binds to the loopback address and needs no administrator rights.
-
-### Running the JavaFX viewer
-
-Install the modules first, then invoke the `javafx:run` goal on the viewer module alone
-(plugin goals, unlike lifecycle phases, cannot be combined with `-am`):
-
-```bash
-mvn clean install
-mvn -pl viewer javafx:run
-```
 
 ## Configuring Counter-Strike 2
 

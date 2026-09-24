@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-09-24
+
+### Added
+
+- `WeaponInfo.hasSecondaryFire`, true if `+attack2` does something with the weapon: the knife's
+  heavy stab, the burst toggle of the Glock-18 and FAMAS, the silencer of the USP-S and M4A1-S,
+  the R8's fanning, the scope of the AUG, SG 553 and sniper rifles, and the short grenade throw.
+- `GameMode.displayName` (`Wingman` for `Scrimcomp2v2`, `Co-op` for `Cooperative`, empty for
+  `Undefined`).
+- `GameMode.roundSeconds` and `GameMode.bombSeconds`, the default round time on defusal maps
+  and the bomb timer from the game's `gamemode_*.cfg` files: 115 and 40 in Competitive, 90 and
+  40 in Wingman, 135 and 40 in Casual. Deathmatch and modes without a fixed value have 0.
+
+### Removed
+
+- The JavaFX event viewer (`viewer` module, `cs2gsi-viewer`). It was never published to Maven
+  Central or JitPack, so no dependency breaks.
+
 ## [1.2.0] - 2026-09-21
 
 ### Added

@@ -4,8 +4,8 @@ jdk:
   - openjdk17
 
 # Only build and publish the core library module (cs2gsi). This skips the
-# example (fat-jar) and viewer (JavaFX) modules, which are not meant to be
-# consumed as dependencies and would slow down / risk the JitPack build.
+# example (fat-jar) module, which is not meant to be consumed as a dependency
+# and would slow down / risk the JitPack build.
 #
 # Use the Maven wrapper (./mvnw) so the build runs on a modern Maven (3.9.9).
 # JitPack's system Maven is too old (~3.2.5) for the plugin versions this

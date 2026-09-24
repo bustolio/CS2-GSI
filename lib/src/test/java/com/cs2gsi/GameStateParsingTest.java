@@ -177,6 +177,32 @@ class GameStateParsingTest {
     }
 
     @Test
+    void gameModeCarriesDisplayNameAndTimers() {
+        assertEquals("Wingman", GameMode.Scrimcomp2v2.displayName);
+        assertEquals("", GameMode.Undefined.displayName);
+        assertEquals(115, GameMode.Competitive.roundSeconds);
+        assertEquals(90, GameMode.Scrimcomp2v2.roundSeconds);
+        assertEquals(135, GameMode.Casual.roundSeconds);
+        assertEquals(40, GameMode.Competitive.bombSeconds);
+        assertEquals(0, GameMode.Deathmatch.roundSeconds);
+        assertEquals(0, GameMode.Deathmatch.bombSeconds);
+        // The numeric fallback in toEnum depends on the order of the constants.
+        assertEquals(GameMode.Competitive, Node.toEnum(GameMode.class, "2"));
+    }
+
+    @Test
+    void weaponInfoKnowsWhichWeaponsReactToSecondaryFire() {
+        assertTrue(WeaponInfo.Knife.hasSecondaryFire);
+        assertTrue(WeaponInfo.UspS.hasSecondaryFire);
+        assertTrue(WeaponInfo.Awp.hasSecondaryFire);
+        assertTrue(WeaponInfo.SmokeGrenade.hasSecondaryFire);
+        assertFalse(WeaponInfo.Ak47.hasSecondaryFire);
+        assertFalse(WeaponInfo.Zeus.hasSecondaryFire);
+        assertFalse(WeaponInfo.C4.hasSecondaryFire);
+        assertFalse(WeaponInfo.Undefined.hasSecondaryFire);
+    }
+
+    @Test
     void playerIsLocalOnlyWhenTheProviderNamesTheSameAccount() throws IOException {
         assertTrue(gameState.isLocalPlayer());
 
